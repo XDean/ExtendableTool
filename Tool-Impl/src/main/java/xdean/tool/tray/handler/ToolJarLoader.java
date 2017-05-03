@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import lombok.extern.slf4j.Slf4j;
 import xdean.jex.util.file.FileUtil;
@@ -42,7 +41,7 @@ public class ToolJarLoader implements IToolResourceLoader {
     URL sourceUrl;
     Path sourcePath;
     Path libPath;
-    JarFile jarFile;
+    ArrayList<JarEntry> jarEntries;
 
     public ToolJarUrl(Path path) throws IOException {
       this.sourcePath = path;
@@ -56,14 +55,13 @@ public class ToolJarLoader implements IToolResourceLoader {
         sourceUrl = new URL(String.format("jar:%s!/", sourceUrl));
         connection = (JarURLConnection) sourceUrl.openConnection();
       }
-      jarFile = connection.getJarFile();
+      jarEntries = Collections.list(connection.getJarFile().entries());
     }
 
     public List<ITool> getToolMenu() throws IOException {
       List<ITool> toolList = new ArrayList<>();
       URLClassLoader classLoader = getClassLoader();
-      Collections.list(jarFile.entries())
-          .stream()
+      jarEntries.stream()
           .map(JarEntry::getName)
           .filter(n -> n.endsWith(".class"))
           .map(name -> loadClass(name, classLoader))
@@ -104,12 +102,10 @@ public class ToolJarLoader implements IToolResourceLoader {
       Path tempLibFolder = Context.TEMP_PATH.resolve(sourcePath.getFileName().toString());
       FileUtil.createDirectory(tempLibFolder);
       // copy jar files from jar file to temp folder
-      Collections.list(jarFile.entries())
-          .stream()
+      jarEntries.stream()
           .map(JarEntry::getName)
           .filter(n -> n.endsWith(".jar"))
           .forEach(name -> uncheck(() -> {
-            System.err.println(name);
             InputStream input = classLoader.getResourceAsStream(name);
             Path tempPath = tempLibFolder.resolve(name);
             Files.copy(input, tempPath, StandardCopyOption.REPLACE_EXISTING);
@@ -123,6 +119,7 @@ public class ToolJarLoader implements IToolResourceLoader {
     }
 
     private Optional<ITool> loadClass(String clzName, ClassLoader classLoader) {
+      System.err.println("load"+clzName);
       clzName = clzName.replace('/', '.');
       if (clzName.endsWith(".class")) {
         clzName = clzName.substring(0, clzName.length() - 6);
