@@ -1,19 +1,9 @@
 package xdean.tool.sys.other;
 
-import lombok.SneakyThrows;
-import xdean.tool.api.impl.AbstractToolMenu;
+import xdean.tool.sys.CommandTool;
 
-public class ExplorerRestart extends AbstractToolMenu {
+public class ExplorerRestart extends CommandTool {
   public ExplorerRestart() {
-    super("RestartExplorer");
+    super("RestartExplorer", "taskkill /f /IM explorer.exe && explorer.exe");
   }
-
-  @SneakyThrows
-  @Override
-  public void onClick() {
-    Process close = Runtime.getRuntime().exec("taskkill /f /IM explorer.exe");
-    close.waitFor();
-    Runtime.getRuntime().exec("explorer.exe");
-  }
-
 }

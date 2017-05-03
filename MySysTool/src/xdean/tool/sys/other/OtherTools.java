@@ -12,5 +12,5 @@ public class OtherTools extends AbstractToolMenu {
 
   @Override
   public void onClick() {
-  };
+  }
 }
