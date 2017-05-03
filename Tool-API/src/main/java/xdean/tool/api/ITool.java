@@ -8,7 +8,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- * Tool menu item, it has 3 properties<br>
+ * Tool item, it has 3 properties<br>
  * 1. text<br>
  * 2. icon<br>
  * 3. children<br>
