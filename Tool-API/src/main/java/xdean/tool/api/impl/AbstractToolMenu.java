@@ -2,44 +2,44 @@ package xdean.tool.api.impl;
 
 import java.net.URL;
 
-import xdean.tool.api.ITool;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyListWrapper;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import xdean.tool.api.ITool;
 
 public abstract class AbstractToolMenu implements ITool {
 
-	protected StringProperty text;
-	protected ObjectProperty<URL> iconUrl;
-	protected ListProperty<ITool> children;
+  protected StringProperty text;
+  protected ObjectProperty<URL> iconUrl;
+  protected ListProperty<ITool> children;
 
-	public AbstractToolMenu() {
-		text = new ReadOnlyStringWrapper("undefined");
-		iconUrl = new ReadOnlyObjectWrapper<>();
-		children = new ReadOnlyListWrapper<>(FXCollections.observableArrayList());
-	}
+  public AbstractToolMenu() {
+    text = new SimpleStringProperty("undefined");
+    iconUrl = new SimpleObjectProperty<>();
+    children = new SimpleListProperty<>(FXCollections.observableArrayList());
+  }
 
-	public AbstractToolMenu(String text) {
-		this();
-		this.text.set(text);
-	}
+  public AbstractToolMenu(String text) {
+    this();
+    this.text.set(text);
+  }
 
-	@Override
-	public StringProperty textProperty() {
-		return text;
-	}
+  @Override
+  public StringProperty textProperty() {
+    return text;
+  }
 
-	@Override
-	public ObjectProperty<URL> iconUrlProperty() {
-		return iconUrl;
-	}
+  @Override
+  public ObjectProperty<URL> iconUrlProperty() {
+    return iconUrl;
+  }
 
-	@Override
-	public ListProperty<ITool> childrenProperty() {
-		return children;
-	}
+  @Override
+  public ListProperty<ITool> childrenProperty() {
+    return children;
+  }
 }
