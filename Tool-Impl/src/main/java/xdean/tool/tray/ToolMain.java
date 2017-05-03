@@ -12,6 +12,8 @@ import org.wenzhe.filewatcher.dsl.FileWatcherDslContext;
 
 import xdean.tool.api.Context;
 
+import com.google.common.annotations.Beta;
+
 public class ToolMain {
   public static void main(String[] args) throws AWTException, IOException {
     TrayService.INSTANCE.start();
@@ -29,6 +31,12 @@ public class ToolMain {
     }
   }
 
+  /**
+   * Copy file cannot be listened
+   * 
+   * @param dir
+   */
+  @Beta
   private static void watchFile(Path dir) {
     FileWatcherDslContext context = new FileWatcherDslContext();
     context.start(false)

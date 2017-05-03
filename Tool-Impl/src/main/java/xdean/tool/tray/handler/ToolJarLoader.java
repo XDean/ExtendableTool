@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarEntry;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import xdean.jex.util.file.FileUtil;
 import xdean.tool.api.Context;
@@ -37,6 +39,7 @@ public class ToolJarLoader implements IToolResourceLoader {
     return Collections.emptyList();
   }
 
+  @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
   private static class ToolJarUrl {
     URL sourceUrl;
     Path sourcePath;
@@ -44,10 +47,7 @@ public class ToolJarLoader implements IToolResourceLoader {
     ArrayList<JarEntry> jarEntries;
 
     public ToolJarUrl(Path path) throws IOException {
-      this.sourcePath = path;
-      this.sourceUrl = path.toAbsolutePath().toUri().toURL();
-      this.libPath = getLibURL(path);
-      System.out.println(sourceUrl);
+      URL sourceUrl = path.toAbsolutePath().toUri().toURL();
       JarURLConnection connection;
       try {
         connection = (JarURLConnection) sourceUrl.openConnection();
@@ -55,7 +55,10 @@ public class ToolJarLoader implements IToolResourceLoader {
         sourceUrl = new URL(String.format("jar:%s!/", sourceUrl));
         connection = (JarURLConnection) sourceUrl.openConnection();
       }
-      jarEntries = Collections.list(connection.getJarFile().entries());
+      this.sourcePath = path;
+      this.libPath = getLibURL(path);
+      this.sourceUrl = sourceUrl;
+      this.jarEntries = Collections.list(connection.getJarFile().entries());
     }
 
     public List<ITool> getToolMenu() throws IOException {
@@ -112,14 +115,13 @@ public class ToolJarLoader implements IToolResourceLoader {
             list.add(tempPath.toUri().toURL());
           }));
       classLoader.close();
-      log.debug(list.toString());
+      log.debug("load {} with libirary: {}", sourcePath, list);
       URL[] arr = new URL[list.size()];
       URL[] urls = list.toArray(arr);
       return URLClassLoader.newInstance(urls, getClass().getClassLoader());
     }
 
     private Optional<ITool> loadClass(String clzName, ClassLoader classLoader) {
-      System.err.println("load"+clzName);
       clzName = clzName.replace('/', '.');
       if (clzName.endsWith(".class")) {
         clzName = clzName.substring(0, clzName.length() - 6);
