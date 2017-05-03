@@ -31,8 +31,7 @@ public class ToolJarLoader implements IToolResourceLoader {
   @Override
   public List<ITool> getTools(Path path) {
     try {
-      ToolJarUrl toolJarUrl = new ToolJarUrl(path);
-      return toolJarUrl.getToolMenu();
+      return new ToolJarUrl(path).getToolMenu();
     } catch (IOException e) {
       log.error("Illegal url", path, e);
     }
@@ -40,22 +39,22 @@ public class ToolJarLoader implements IToolResourceLoader {
   }
 
   private static class ToolJarUrl {
-
+    URL sourceUrl;
     Path sourcePath;
-    URL url;
     Path libPath;
     JarFile jarFile;
 
     public ToolJarUrl(Path path) throws IOException {
       this.sourcePath = path;
-      this.url = path.toAbsolutePath().toUri().toURL();
+      this.sourceUrl = path.toAbsolutePath().toUri().toURL();
       this.libPath = getLibURL(path);
+      System.out.println(sourceUrl);
       JarURLConnection connection;
       try {
-        connection = (JarURLConnection) url.openConnection();
-      } catch (IOException e) {
-        url = new URL(String.format("jar:%s!/", url));
-        connection = (JarURLConnection) url.openConnection();
+        connection = (JarURLConnection) sourceUrl.openConnection();
+      } catch (Exception e) {
+        sourceUrl = new URL(String.format("jar:%s!/", sourceUrl));
+        connection = (JarURLConnection) sourceUrl.openConnection();
       }
       jarFile = connection.getJarFile();
     }
@@ -94,22 +93,23 @@ public class ToolJarLoader implements IToolResourceLoader {
     private URLClassLoader getClassLoader() throws IOException {
       List<URL> list = new ArrayList<>();
       // itself
-      list.add(url);
+      list.add(sourceUrl);
       // outer lib
       FileUtil.wideTraversal(libPath)
           .filter(p -> p.getFileName().toString().endsWith(".jar"))
           .map(p -> uncheck(() -> p.toUri().toURL()))
           .forEach(list::add);
       // inner lib
-      URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { url });
+      URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { sourceUrl });
       Path tempLibFolder = Context.TEMP_PATH.resolve(sourcePath.getFileName().toString());
       FileUtil.createDirectory(tempLibFolder);
-
+      // copy jar files from jar file to temp folder
       Collections.list(jarFile.entries())
           .stream()
           .map(JarEntry::getName)
           .filter(n -> n.endsWith(".jar"))
           .forEach(name -> uncheck(() -> {
+            System.err.println(name);
             InputStream input = classLoader.getResourceAsStream(name);
             Path tempPath = tempLibFolder.resolve(name);
             Files.copy(input, tempPath, StandardCopyOption.REPLACE_EXISTING);
