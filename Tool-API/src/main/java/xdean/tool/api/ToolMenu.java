@@ -1,4 +1,4 @@
-package xdean.tool.api.inter;
+package xdean.tool.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

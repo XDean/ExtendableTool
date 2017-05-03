@@ -21,9 +21,9 @@ import java.util.jar.JarFile;
 import lombok.extern.slf4j.Slf4j;
 import xdean.jex.util.file.FileUtil;
 import xdean.tool.api.Context;
+import xdean.tool.api.ITool;
+import xdean.tool.api.IToolResourceLoader;
 import xdean.tool.api.ToolUtil;
-import xdean.tool.api.inter.ITool;
-import xdean.tool.api.inter.IToolResourceLoader;
 
 @Slf4j
 public class ToolJarLoader implements IToolResourceLoader {

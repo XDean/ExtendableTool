@@ -1,7 +1,7 @@
 package xdean.tool.sys.other;
 
+import xdean.tool.api.ToolMenu;
 import xdean.tool.api.impl.AbstractToolMenu;
-import xdean.tool.api.inter.ToolMenu;
 
 @ToolMenu
 public class OtherTools extends AbstractToolMenu {

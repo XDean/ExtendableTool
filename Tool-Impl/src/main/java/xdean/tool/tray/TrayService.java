@@ -13,8 +13,8 @@ import java.util.Map;
 
 import javafx.collections.ListChangeListener;
 import xdean.tool.api.Context;
+import xdean.tool.api.ITool;
 import xdean.tool.api.impl.SeparatorItem;
-import xdean.tool.api.inter.ITool;
 
 public enum TrayService {
 

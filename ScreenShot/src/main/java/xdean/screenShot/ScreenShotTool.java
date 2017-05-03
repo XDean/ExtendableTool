@@ -1,7 +1,7 @@
 package xdean.screenShot;
 
+import xdean.tool.api.ToolMenu;
 import xdean.tool.api.impl.AbstractToolMenu;
-import xdean.tool.api.inter.ToolMenu;
 
 @ToolMenu
 public class ScreenShotTool extends AbstractToolMenu {

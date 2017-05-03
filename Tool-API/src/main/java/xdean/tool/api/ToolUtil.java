@@ -2,9 +2,6 @@ package xdean.tool.api;
 
 import java.util.Optional;
 
-import xdean.tool.api.inter.ITool;
-import xdean.tool.api.inter.ToolMenu;
-
 public class ToolUtil {
 
 	public static Optional<ITool> getToolMenu(Class<?> clz) {

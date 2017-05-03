@@ -11,11 +11,11 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.plugins.RxJavaSchedulersHook;
 import xdean.jex.util.task.TaskUtil;
+import xdean.tool.api.ITool;
+import xdean.tool.api.ToolMenu;
 import xdean.tool.api.impl.AbstractToolMenu;
 import xdean.tool.api.impl.SeparatorItem;
 import xdean.tool.api.impl.SimpleToolMenu;
-import xdean.tool.api.inter.ITool;
-import xdean.tool.api.inter.ToolMenu;
 
 @ToolMenu
 public class ClipBoardTool extends AbstractToolMenu {

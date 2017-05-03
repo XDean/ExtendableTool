@@ -1,4 +1,4 @@
-package xdean.tool.api.inter;
+package xdean.tool.api;
 
 import java.net.URL;
 import java.util.List;

@@ -2,7 +2,7 @@ package xdean.tool.api.impl;
 
 import java.net.URL;
 
-import xdean.tool.api.inter.ITool;
+import xdean.tool.api.ITool;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
