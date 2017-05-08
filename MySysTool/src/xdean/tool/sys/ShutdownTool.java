@@ -4,10 +4,10 @@ import java.io.IOException;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import xdean.tool.api.ToolMenu;
+import xdean.tool.api.Tool;
 import xdean.tool.api.impl.AbstractToolMenu;
 
-@ToolMenu
+@Tool
 public class ShutdownTool extends AbstractToolMenu {
 
 	public ShutdownTool() {

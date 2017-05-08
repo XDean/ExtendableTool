@@ -5,7 +5,7 @@ import java.util.Optional;
 public class ToolUtil {
 
 	public static Optional<ITool> getToolMenu(Class<?> clz) {
-		if (clz.getAnnotation(ToolMenu.class) == null) {
+		if (clz.getAnnotation(Tool.class) == null) {
 			return Optional.empty();
 		}
 		Object newInstance;
