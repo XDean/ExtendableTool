@@ -56,6 +56,14 @@ public class ScreenShot {
     show();
   }
 
+  public void register(boolean b) {
+    if (b) {
+      register();
+    } else {
+      unregister();
+    }
+  }
+
   public void register() {
     JIntellitype jni = JIntellitype.getInstance();
     jni.registerHotKey(0, Config.getProperty(KEY).orElse(DEFAULT_KEY));

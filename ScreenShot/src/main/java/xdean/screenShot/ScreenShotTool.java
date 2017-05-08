@@ -1,25 +1,37 @@
 package xdean.screenShot;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import lombok.Getter;
+import xdean.jex.config.Config;
 import xdean.tool.api.Tool;
 import xdean.tool.api.impl.AbstractToolItem;
 
 @Tool
 public class ScreenShotTool extends AbstractToolItem {
-  boolean enable;
+  private final String ENABLE_KEY = "ScreenShotEnable";
+  @Getter BooleanProperty enable;
 
   public ScreenShotTool() {
-    super("Enable ScreenShot");
+    super("");
+    enable = new SimpleBooleanProperty(
+        Config.getProperty(ENABLE_KEY)
+            .map(Boolean::valueOf)
+            .orElse(false));
+    enable.addListener((ob, o, n) -> {
+      ScreenShot.register(n);
+      Config.setProperty(ENABLE_KEY, n.toString());
+    });
+    textProperty().bind(
+        Bindings.when(enable)
+            .then("Enable")
+            .otherwise("disable")
+            .concat(" ScreenShot"));
   }
 
   @Override
   public void onClick() {
-    if (enable) {
-      ScreenShot.unregister();
-      text.set("Enable ScreenShot");
-    } else {
-      ScreenShot.register();
-      text.set("Disable ScreenShot");
-    }
-    enable = !enable;
+    enable.set(!enable.get());
   }
 }
