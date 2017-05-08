@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Class with this annotation will be load as a tool menu item
+ * Class with this annotation will be load as a tool item
  * 
  * @author XDean
  *
@@ -14,4 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Tool {
+  Class<?> parent() default Object.class;
+
+  String path() default "";
 }

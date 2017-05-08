@@ -3,9 +3,9 @@ package xdean.tool.sys.clipboard;
 import java.io.IOException;
 
 import javafx.scene.image.Image;
-import xdean.tool.api.impl.AbstractToolMenu;
+import xdean.tool.api.impl.AbstractToolItem;
 
-class ClipImage extends AbstractToolMenu {
+class ClipImage extends AbstractToolItem {
 
   private String imageName;
 

@@ -11,19 +11,19 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import xdean.tool.api.ITool;
 
-public abstract class AbstractToolMenu implements ITool {
+public abstract class AbstractToolItem implements ITool {
 
   protected StringProperty text;
   protected ObjectProperty<URL> iconUrl;
   protected ListProperty<ITool> children;
 
-  public AbstractToolMenu() {
+  public AbstractToolItem() {
     text = new SimpleStringProperty("undefined");
     iconUrl = new SimpleObjectProperty<>();
     children = new SimpleListProperty<>(FXCollections.observableArrayList());
   }
 
-  public AbstractToolMenu(String text) {
+  public AbstractToolItem(String text) {
     this();
     this.text.set(text);
   }

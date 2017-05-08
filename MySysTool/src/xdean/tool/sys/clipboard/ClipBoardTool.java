@@ -13,12 +13,12 @@ import rx.plugins.RxJavaSchedulersHook;
 import xdean.jex.util.task.TaskUtil;
 import xdean.tool.api.ITool;
 import xdean.tool.api.Tool;
-import xdean.tool.api.impl.AbstractToolMenu;
+import xdean.tool.api.impl.AbstractToolItem;
 import xdean.tool.api.impl.SeparatorItem;
-import xdean.tool.api.impl.SimpleToolMenu;
+import xdean.tool.api.impl.SimpleToolItem;
 
 @Tool
-public class ClipBoardTool extends AbstractToolMenu {
+public class ClipBoardTool extends AbstractToolItem {
 
   private Map<String, ITool> stringMap;
   private Map<String, ITool> imageMap;
@@ -31,7 +31,7 @@ public class ClipBoardTool extends AbstractToolMenu {
     imageMap = new HashMap<>();
     Toolkit.getDefaultToolkit().getSystemClipboard().addFlavorListener(e -> newContent());
 
-    clearItem = new SimpleToolMenu("Clear", () -> {
+    clearItem = new SimpleToolItem("Clear", () -> {
       childrenProperty().clear();
       stringMap.clear();
       childrenProperty().add(clearItem);
@@ -57,7 +57,7 @@ public class ClipBoardTool extends AbstractToolMenu {
                   childrenProperty().remove(item);
                   childrenProperty().add(item);
                 } else {
-                  ITool item = new SimpleToolMenu(ClipUtil.normalizeTextLength(str),
+                  ITool item = new SimpleToolItem(ClipUtil.normalizeTextLength(str),
                       () -> ClipUtil.setClipText(str));
                   childrenProperty().add(item);
                   stringMap.put(str, item);

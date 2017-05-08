@@ -128,7 +128,7 @@ public class ToolJarLoader implements IToolResourceLoader {
       }
       try {
         Class<?> clz = classLoader.loadClass(clzName);
-        return ToolUtil.getToolMenu(clz);
+        return ToolUtil.getTool(clz);
       } catch (Throwable e) {
         log.error("load class fail", clzName, e);
       }

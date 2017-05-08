@@ -1,10 +1,10 @@
 package xdean.screenShot;
 
 import xdean.tool.api.Tool;
-import xdean.tool.api.impl.AbstractToolMenu;
+import xdean.tool.api.impl.AbstractToolItem;
 
 @Tool
-public class ScreenShotTool extends AbstractToolMenu {
+public class ScreenShotTool extends AbstractToolItem {
   boolean enable;
 
   public ScreenShotTool() {

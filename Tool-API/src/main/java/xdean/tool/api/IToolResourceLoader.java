@@ -1,7 +1,7 @@
 package xdean.tool.api;
 
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Resource loader determine how to load tools from file
@@ -10,5 +10,5 @@ import java.util.List;
  *
  */
 public interface IToolResourceLoader {
-  List<ITool> getTools(Path path);
+  Collection<ITool> getTools(Path path);
 }

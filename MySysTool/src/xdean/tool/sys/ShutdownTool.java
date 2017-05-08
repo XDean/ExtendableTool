@@ -5,10 +5,10 @@ import java.io.IOException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import xdean.tool.api.Tool;
-import xdean.tool.api.impl.AbstractToolMenu;
+import xdean.tool.api.impl.AbstractToolItem;
 
 @Tool
-public class ShutdownTool extends AbstractToolMenu {
+public class ShutdownTool extends AbstractToolItem {
 
 	public ShutdownTool() {
 		super("Shutdown");
@@ -20,7 +20,7 @@ public class ShutdownTool extends AbstractToolMenu {
 
 	}
 
-	private static class TimedShutdown extends AbstractToolMenu {
+	private static class TimedShutdown extends AbstractToolItem {
 		private static final String DO = "Timed";
 		private static final String CANCEL = "Cancel";
 		BooleanProperty timed = new SimpleBooleanProperty(false);

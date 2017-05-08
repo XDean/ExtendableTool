@@ -1,11 +1,11 @@
 package xdean.tool.api.impl;
 
 
-public class SimpleToolMenu extends AbstractToolMenu {
+public class SimpleToolItem extends AbstractToolItem {
 
 	private final Runnable click;
 
-	public SimpleToolMenu(String text, Runnable click) {
+	public SimpleToolItem(String text, Runnable click) {
 		super(text);
 		this.click = click;
 	}
