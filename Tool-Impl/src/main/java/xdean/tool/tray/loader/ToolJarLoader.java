@@ -26,6 +26,13 @@ import xdean.tool.api.ITool;
 import xdean.tool.api.IToolResourceLoader;
 import xdean.tool.api.ToolUtil;
 
+/**
+ * ToolJarLoader will load .jar file.<br>
+ * It resolve both packaged library in jar file and library in a sub-folder named "XXX_lib".
+ * 
+ * @author XDean
+ *
+ */
 @Slf4j
 public class ToolJarLoader implements IToolResourceLoader {
 
@@ -104,6 +111,7 @@ public class ToolJarLoader implements IToolResourceLoader {
       URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { sourceUrl });
       Path tempLibFolder = Context.TEMP_PATH.resolve(sourcePath.getFileName().toString());
       FileUtil.createDirectory(tempLibFolder);
+      
       // copy jar files from jar file to temp folder
       jarEntries.stream()
           .map(JarEntry::getName)
