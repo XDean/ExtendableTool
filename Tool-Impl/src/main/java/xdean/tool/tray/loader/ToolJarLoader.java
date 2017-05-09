@@ -119,6 +119,7 @@ public class ToolJarLoader implements IToolResourceLoader {
           .forEach(name -> uncheck(() -> {
             InputStream input = classLoader.getResourceAsStream(name);
             Path tempPath = tempLibFolder.resolve(name);
+            Files.createDirectories(tempPath.getParent());
             Files.copy(input, tempPath, StandardCopyOption.REPLACE_EXISTING);
             list.add(tempPath.toUri().toURL());
           }));
