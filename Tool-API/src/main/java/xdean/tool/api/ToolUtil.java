@@ -2,8 +2,9 @@ package xdean.tool.api;
 
 import java.util.Optional;
 
-import rx.Observable;
 import lombok.experimental.UtilityClass;
+import rx.Observable;
+import rx.functions.Func1;
 import xdean.jex.util.string.StringUtil;
 import xdean.tool.api.impl.TextToolItem;
 
@@ -33,11 +34,15 @@ public class ToolUtil {
   }
 
   private <T extends ITool> ITool wrapTool(ITool tool) {
+    return wrapTool(tool, TextToolItem::new);
+  }
+
+  private <T extends ITool> ITool wrapTool(ITool tool, Func1<String, ITool> func) {
     return Observable.just(tool.getClass())
         .map(ToolUtil::getToolPath)
         .flatMap(p -> Observable.from(p.split("/")))
         .filter(s -> s.length() > 0)
-        .<ITool> map(TextToolItem::new)
+        .map(func)
         .concatWith(Observable.just(tool))
         .scan((a, b) -> {
           a.childrenProperty().add(b);

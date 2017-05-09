@@ -1,4 +1,4 @@
-package xdean.tool.tray.handler;
+package xdean.tool.tray.loader;
 
 import static xdean.jex.util.task.TaskUtil.uncheck;
 

@@ -12,10 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.collections.ListChangeListener;
+import lombok.extern.slf4j.Slf4j;
 import xdean.tool.api.Context;
 import xdean.tool.api.ITool;
 import xdean.tool.api.impl.SeparatorItem;
 
+@Slf4j
 public enum TrayService {
 
   INSTANCE;
@@ -100,7 +102,7 @@ public enum TrayService {
                 if (removed != null) {
                   menu.remove(removed);
                 }
-                System.out.println(remitem + "," + menuMap);
+                log.debug(remitem + "," + menuMap);
               }
               for (ITool additem : c.getAddedSubList()) {
                 MenuItem item = toMenuItem(additem);
