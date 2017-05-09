@@ -1,19 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>xdean</groupId>
-	<artifactId>tool.impl</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>tool.impl.tray</artifactId>
+	<parent>
+		<groupId>xdean</groupId>
+		<artifactId>tool</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
 
 	<dependencies>
 		<dependency>
 			<groupId>xdean</groupId>
 			<artifactId>tool.api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>xdean</groupId>
-			<artifactId>Java-EX</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- https://github.com/WenzheLiu/filewatcher -->
