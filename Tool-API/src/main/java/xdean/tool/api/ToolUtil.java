@@ -33,15 +33,22 @@ public class ToolUtil {
     return getTool(clz).map(ToolUtil::wrapTool);
   }
 
-  private <T extends ITool> ITool wrapTool(ITool tool) {
-    return wrapTool(tool, TextToolItem::new);
+  public <T extends ITool> ITool wrapTool(ITool tool) {
+    return wrapTool(tool, str -> new TextToolItem(getLastPath(str)));
   }
 
-  private <T extends ITool> ITool wrapTool(ITool tool, Func1<String, ITool> func) {
+  /**
+   * 
+   * @param tool the tool to wrap
+   * @param func from absolute path to tool
+   * @return
+   */
+  public <T extends ITool> ITool wrapTool(ITool tool, Func1<String, ITool> func) {
     return Observable.just(tool.getClass())
         .map(ToolUtil::getToolPath)
         .flatMap(p -> Observable.from(p.split("/")))
         .filter(s -> s.length() > 0)
+        .scan((s1, s2) -> s1 + s2)
         .map(func)
         .concatWith(Observable.just(tool))
         .scan((a, b) -> {
@@ -60,5 +67,9 @@ public class ToolUtil {
       return "";
     }
     return String.join("/", getToolPath(tool.parent()), StringUtil.unWrap(tool.path(), "/", ""));
+  }
+
+  public String getLastPath(String path) {
+    return path.substring(path.lastIndexOf("/") + 1);
   }
 }
