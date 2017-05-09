@@ -25,8 +25,8 @@ public class ScreenShotTool extends AbstractToolItem {
     });
     textProperty().bind(
         Bindings.when(enable)
-            .then("Enable")
-            .otherwise("Disable")
+            .then("Disable")
+            .otherwise("Enable")
             .concat(" ScreenShot"));
   }
 
