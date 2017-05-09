@@ -7,7 +7,6 @@ import xdean.tool.api.impl.AbstractToolItem;
 @AllArgsConstructor
 public class CommandTool extends AbstractToolItem {
 
-  String text;
   String command;
 
   @SneakyThrows
