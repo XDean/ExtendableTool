@@ -8,6 +8,10 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<root.resourceFolder>${session.executionRootDirectory}/src/main/resources</root.resourceFolder>
+		<assembly.dir>${root.resourceFolder}/assembly</assembly.dir>
+		<assembly.pack>${assembly.dir}/pack-dependency.xml</assembly.pack>
+		<assembly.unpack>${assembly.dir}/unpack-dependency.xml</assembly.unpack>
 	</properties>
 
 	<dependencies>
@@ -38,10 +42,10 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-					<outputDirectory>output-jar</outputDirectory>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
+					<descriptors>
+						<descriptor>${assembly.pack}</descriptor>
+					</descriptors>
+					<finalName>${project.groupId}.${project.artifactId}-${project.version}</finalName>
 				</configuration>
 				<executions>
 					<execution>
@@ -49,22 +53,6 @@
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.0.0</version>
-				<configuration>
-					<!-- put your configurations here -->
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
 						</goals>
 					</execution>
 				</executions>

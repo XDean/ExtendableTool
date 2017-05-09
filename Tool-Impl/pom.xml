@@ -8,16 +8,42 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<dependencies>
-		<dependency>
-			<groupId>xdean</groupId>
-			<artifactId>tool.api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		<!-- https://github.com/WenzheLiu/filewatcher -->
 		<dependency>
 			<groupId>org.wenzhe</groupId>
 			<artifactId>filewatcher</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>xdean</groupId>
+			<artifactId>tool.api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.reactivex</groupId>
+				<artifactId>rxjava</artifactId>
+				<version>1.2.7</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>xdean.tool.tray.ToolMain</mainClass>
+						</manifest>
+					</archive>
+					<descriptors>
+						<descriptor>${assembly.unpack}</descriptor>
+					</descriptors>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
