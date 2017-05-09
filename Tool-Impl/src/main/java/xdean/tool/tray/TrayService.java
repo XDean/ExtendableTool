@@ -12,9 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.collections.ListChangeListener;
+import xdean.jex.util.collection.MapUtil;
 import xdean.tool.api.Context;
 import xdean.tool.api.ITool;
+import xdean.tool.api.ToolUtil;
 import xdean.tool.api.impl.SeparatorItem;
+import xdean.tool.api.impl.TextToolItem;
 
 public enum TrayService {
 
@@ -24,10 +27,12 @@ public enum TrayService {
   SystemTray systemTray;
   PopupMenu menuRoot;
   Map<ITool, MenuItem> menuMap;
+  Map<String, ITool> pathMap;
 
   private TrayService() {
     systemTray = SystemTray.getSystemTray();
     menuMap = new HashMap<>();
+    pathMap = new HashMap<>();
   }
 
   public void start() throws AWTException {
@@ -51,6 +56,8 @@ public enum TrayService {
   }
 
   public void add(ITool tool) {
+    tool = ToolUtil.wrapTool(tool, path -> MapUtil.getOrPutDefault(pathMap, path,
+        () -> new TextToolItem(ToolUtil.getLastPath(path))));
     menuRoot.insert(toMenuItem(tool), menuRoot.getItemCount() - 2);
   }
 

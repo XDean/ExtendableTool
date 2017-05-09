@@ -48,7 +48,7 @@ public class ToolUtil {
         .map(ToolUtil::getToolPath)
         .flatMap(p -> Observable.from(p.split("/")))
         .filter(s -> s.length() > 0)
-        .scan((s1, s2) -> s1 + s2)
+        .scan((s1, s2) -> String.join("/", s1, s2))
         .map(func)
         .concatWith(Observable.just(tool))
         .scan((a, b) -> {
