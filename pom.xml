@@ -7,8 +7,9 @@
 	<packaging>pom</packaging>
 
 	<properties>
+		<rootdir>${session.executionRootDirectory}/</rootdir>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<root.resourceFolder>${session.executionRootDirectory}/src/main/resources</root.resourceFolder>
+		<root.resourceFolder>src/main/resources</root.resourceFolder>
 		<assembly.dir>${root.resourceFolder}/assembly</assembly.dir>
 		<assembly.pack>${assembly.dir}/pack-dependency.xml</assembly.pack>
 		<assembly.unpack>${assembly.dir}/unpack-dependency.xml</assembly.unpack>
