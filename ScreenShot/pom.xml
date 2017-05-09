@@ -10,11 +10,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>xdean</groupId>
-			<artifactId>Java-EX</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>xdean</groupId>
 			<artifactId>JavaFX-EX</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
@@ -22,6 +17,13 @@
 			<groupId>xdean</groupId>
 			<artifactId>tool.api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.melloware</groupId>
+			<artifactId>jintellitype</artifactId>
+			<version>1.3.9</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/jintellitype-1.3.9.jar</systemPath>
 		</dependency>
 	</dependencies>
 </project>
