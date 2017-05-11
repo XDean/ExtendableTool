@@ -29,7 +29,6 @@
 		<module>Tool-Impl</module>
 		<module>ScreenShot</module>
 		<module>SystemTool</module>
-		<module>Tool-Core</module>
 	</modules>
 
 	<build>
