@@ -16,8 +16,9 @@ import xdean.tool.api.Tool;
 import xdean.tool.api.impl.AbstractToolItem;
 import xdean.tool.api.impl.SeparatorItem;
 import xdean.tool.api.impl.SimpleToolItem;
+import xdean.tool.sys.SystemTools;
 
-@Tool
+@Tool(parent = SystemTools.class)
 public class ClipBoardTool extends AbstractToolItem {
 
   private Map<String, ITool> stringMap;
