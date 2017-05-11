@@ -7,12 +7,13 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<rootdir>${session.executionRootDirectory}/</rootdir>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<root.resourceFolder>src/main/resources</root.resourceFolder>
-		<assembly.dir>${root.resourceFolder}/assembly</assembly.dir>
-		<assembly.pack>${assembly.dir}/pack-dependency.xml</assembly.pack>
-		<assembly.unpack>${assembly.dir}/unpack-dependency.xml</assembly.unpack>
+		<rootdir>${session.executionRootDirectory}/</rootdir>
+		<resourceFolder>src/main/resources</resourceFolder>
+		<assembly.dir>${resourceFolder}/assembly</assembly.dir>
+		<assembly.pack>${rootdir}/${assembly.dir}/pack-dependency.xml</assembly.pack>
+		<assembly.unpack>${rootdir}/${assembly.dir}/unpack-dependency.xml</assembly.unpack>
+		<tool.extensionpath>${user.home}/.xdean/tool/extension</tool.extensionpath>
 	</properties>
 
 	<dependencies>

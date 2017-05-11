@@ -26,7 +26,7 @@
 			<systemPath>${project.basedir}/lib/jintellitype-1.3.9.jar</systemPath>
 		</dependency>
 	</dependencies>
-		<build>
+	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -34,6 +34,7 @@
 					<descriptors>
 						<descriptor>${assembly.dir}/pack-with-system.xml</descriptor>
 					</descriptors>
+					<outputDirectory>${tool.extensionpath}</outputDirectory>
 				</configuration>
 			</plugin>
 		</plugins>

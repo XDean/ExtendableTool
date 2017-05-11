@@ -40,7 +40,7 @@
 						</manifest>
 					</archive>
 					<descriptors>
-						<descriptor>${rootdir}/${assembly.unpack}</descriptor>
+						<descriptor>${assembly.unpack}</descriptor>
 					</descriptors>
 				</configuration>
 			</plugin>

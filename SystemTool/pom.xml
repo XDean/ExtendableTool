@@ -14,4 +14,14 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<outputDirectory>${tool.extensionpath}</outputDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
