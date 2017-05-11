@@ -26,9 +26,8 @@
 
 	<modules>
 		<module>Tool-API</module>
-		<module>Tool-Impl</module>
-		<module>ScreenShot</module>
-		<module>SystemTool</module>
+		<module>Tool-Impl-Tray</module>
+		<module>Tool-My</module>
 	</modules>
 
 	<build>

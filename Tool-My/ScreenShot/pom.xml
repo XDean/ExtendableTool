@@ -4,18 +4,13 @@
 	<artifactId>tool.screenshot</artifactId>
 	<parent>
 		<groupId>xdean</groupId>
-		<artifactId>tool</artifactId>
+		<artifactId>tool.my</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<dependencies>
 		<dependency>
 			<groupId>xdean</groupId>
 			<artifactId>JavaFX-EX</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>xdean</groupId>
-			<artifactId>tool.api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -34,7 +29,6 @@
 					<descriptors>
 						<descriptor>${assembly.dir}/pack-with-system.xml</descriptor>
 					</descriptors>
-					<outputDirectory>${tool.extensionpath}</outputDirectory>
 				</configuration>
 			</plugin>
 		</plugins>
