@@ -28,24 +28,24 @@ public class ToolUtil {
         Observable.just(clz)
             .filter(c -> ITool.class.isAssignableFrom(c))
             .map(c -> uncatch(() -> c.newInstance()))
-            .filter(i -> i != null)
             .cast(ITool.class),
         // field
         Observable.from(clz.getDeclaredFields())
-            .filter(f -> (f.getModifiers() & Modifier.PUBLIC & Modifier.STATIC & Modifier.FINAL) != 0)
+            .filter(f -> (~f.getModifiers() & (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)) == 0)
             .filter(f -> f.getAnnotation(Tool.class) != null)
             .filter(f -> IToolGetter.class.isAssignableFrom(f.getType()))
-            .map(f -> uncheck(() -> f.get(null)))
+            .map(f -> uncatch(() -> f.get(null)))
             .cast(IToolGetter.class)
             .map(IToolGetter::get),
         // method
         Observable.from(clz.getDeclaredMethods())
-            .filter(m -> (m.getModifiers() & Modifier.PUBLIC & Modifier.STATIC) != 0)
+            .filter(m -> ((~m.getModifiers()) & (Modifier.PUBLIC | Modifier.STATIC)) == 0)
             .filter(m -> m.getAnnotation(Tool.class) != null)
             .filter(m -> m.getParameterCount() == 0)
             .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
-            .map(m -> uncheck(() -> m.invoke(null, new Object[] {})))
-            .cast(ITool.class));
+            .map(m -> uncatch(() -> m.invoke(null, new Object[] {})))
+            .cast(ITool.class))
+        .filter(i -> i != null);
   }
 
   public Observable<ITool> getWrappedTool(Class<?> clz) {

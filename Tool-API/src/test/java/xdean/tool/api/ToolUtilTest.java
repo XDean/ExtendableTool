@@ -11,8 +11,10 @@ import xdean.tool.api.toolUtil.B;
 import xdean.tool.api.toolUtil.C;
 import xdean.tool.api.toolUtil.NoAnno;
 import xdean.tool.api.toolUtil.NoDefaultConstruct;
-import xdean.tool.api.toolUtil.Normal;
+import xdean.tool.api.toolUtil.WithClass;
 import xdean.tool.api.toolUtil.NotTool;
+import xdean.tool.api.toolUtil.WithField;
+import xdean.tool.api.toolUtil.WithMethod;
 
 public class ToolUtilTest {
 
@@ -28,7 +30,9 @@ public class ToolUtilTest {
     getTool(NoAnno.class).test().assertValueCount(0);
     getTool(NotTool.class).test().assertValueCount(0);
     getTool(NoDefaultConstruct.class).test().assertValueCount(0);
-    getTool(Normal.class).test().assertValueCount(1);
+    getTool(WithClass.class).test().assertValueCount(1);
+    getTool(WithField.class).test().assertValueCount(1);
+    getTool(WithMethod.class).test().assertValueCount(1);
   }
   
   @Test
