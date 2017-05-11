@@ -14,12 +14,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.jar.JarEntry;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import rx.Observable;
 import xdean.jex.util.file.FileUtil;
 import xdean.tool.api.Context;
 import xdean.tool.api.ITool;
@@ -71,12 +71,10 @@ public class ToolJarLoader implements IToolResourceLoader {
     public List<ITool> getToolMenu() throws IOException {
       List<ITool> toolList = new ArrayList<>();
       URLClassLoader classLoader = getClassLoader();
-      jarEntries.stream()
+      Observable.from(jarEntries)
           .map(JarEntry::getName)
           .filter(n -> n.endsWith(".class"))
-          .map(name -> loadClass(name, classLoader))
-          .filter(Optional::isPresent)
-          .map(Optional::get)
+          .flatMap(name -> loadClass(name, classLoader))
           .forEach(toolList::add);
       return toolList;
     }
@@ -111,7 +109,7 @@ public class ToolJarLoader implements IToolResourceLoader {
       URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { sourceUrl });
       Path tempLibFolder = Context.TEMP_PATH.resolve(sourcePath.getFileName().toString());
       FileUtil.createDirectory(tempLibFolder);
-      
+
       // copy jar files from jar file to temp folder
       jarEntries.stream()
           .map(JarEntry::getName)
@@ -130,7 +128,7 @@ public class ToolJarLoader implements IToolResourceLoader {
       return URLClassLoader.newInstance(urls, getClass().getClassLoader());
     }
 
-    private Optional<ITool> loadClass(String clzName, ClassLoader classLoader) {
+    private Observable<ITool> loadClass(String clzName, ClassLoader classLoader) {
       clzName = clzName.replace('/', '.');
       if (clzName.endsWith(".class")) {
         clzName = clzName.substring(0, clzName.length() - 6);
@@ -141,7 +139,7 @@ public class ToolJarLoader implements IToolResourceLoader {
       } catch (Throwable e) {
         log.error("load class fail", clzName, e);
       }
-      return Optional.empty();
+      return Observable.empty();
     }
   }
 }

@@ -1,6 +1,8 @@
 package xdean.tool.api;
 
-import java.util.Optional;
+import static xdean.jex.util.task.TaskUtil.*;
+
+import java.lang.reflect.Modifier;
 
 import lombok.experimental.UtilityClass;
 import rx.Observable;
@@ -11,25 +13,42 @@ import xdean.tool.api.impl.TextToolItem;
 @UtilityClass
 public class ToolUtil {
 
-  public Optional<ITool> getTool(Class<?> clz) {
-    Tool toolAnnotation = clz.getAnnotation(Tool.class);
-    if (toolAnnotation == null) {
-      return Optional.empty();
+  /**
+   * Get tools from the class without any processing.
+   * 
+   * @param clz
+   * @return
+   */
+  public Observable<ITool> getTool(Class<?> clz) {
+    // has @Tool
+    if (clz.getAnnotation(Tool.class) == null) {
+      return Observable.empty();
     }
-    Object newInstance;
-    try {
-      newInstance = clz.newInstance();
-    } catch (Exception e) {
-      return Optional.empty();
-    }
-    if (newInstance instanceof ITool) {
-      return Optional.of((ITool) newInstance);
-    } else {
-      return Optional.empty();
-    }
+    return Observable.concat(
+        Observable.just(clz)
+            .filter(c -> ITool.class.isAssignableFrom(c))
+            .map(c -> uncatch(() -> c.newInstance()))
+            .filter(i -> i != null)
+            .cast(ITool.class),
+        // field
+        Observable.from(clz.getDeclaredFields())
+            .filter(f -> (f.getModifiers() & Modifier.PUBLIC & Modifier.STATIC & Modifier.FINAL) != 0)
+            .filter(f -> f.getAnnotation(Tool.class) != null)
+            .filter(f -> IToolGetter.class.isAssignableFrom(f.getType()))
+            .map(f -> uncheck(() -> f.get(null)))
+            .cast(IToolGetter.class)
+            .map(IToolGetter::get),
+        // method
+        Observable.from(clz.getDeclaredMethods())
+            .filter(m -> (m.getModifiers() & Modifier.PUBLIC & Modifier.STATIC) != 0)
+            .filter(m -> m.getAnnotation(Tool.class) != null)
+            .filter(m -> m.getParameterCount() == 0)
+            .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
+            .map(m -> uncheck(() -> m.invoke(null, new Object[] {})))
+            .cast(ITool.class));
   }
 
-  public Optional<ITool> getWrappedTool(Class<?> clz) {
+  public Observable<ITool> getWrappedTool(Class<?> clz) {
     return getTool(clz).map(ToolUtil::wrapTool);
   }
 
