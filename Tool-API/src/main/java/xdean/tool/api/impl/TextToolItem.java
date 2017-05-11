@@ -8,7 +8,7 @@ public class TextToolItem extends AbstractToolItem {
   }
 
   @Override
-  public void onClick() {
+  public final void onClick() {
 
   }
 }

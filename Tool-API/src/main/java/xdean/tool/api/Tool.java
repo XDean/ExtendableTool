@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Class with this annotation will be load as a tool item
+ * Class with this annotation will be load and construct an instance to try to convert to a tool item
  * 
  * @author XDean
  *
@@ -14,7 +14,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Tool {
+
   Class<?> parent() default Object.class;
 
+  /**
+   * Relative path to parent, split by '/'
+   */
   String path() default "";
 }
