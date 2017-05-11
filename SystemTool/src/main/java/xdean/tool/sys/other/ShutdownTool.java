@@ -6,16 +6,11 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import xdean.tool.api.Tool;
 import xdean.tool.api.impl.AbstractToolItem;
-import xdean.tool.api.impl.TextToolItem;
 import xdean.tool.sys.SystemTools;
 import xdean.tool.sys.Util;
 
-@Tool(parent = SystemTools.class)
-public class ShutdownTool extends TextToolItem {
-
-  public ShutdownTool() {
-    super("Shutdown");
-  }
+@Tool(parent = SystemTools.class, path = "Shutdown")
+public class ShutdownTool {
 
   @Tool(parent = ShutdownTool.class)
   public static class TimedShutdown extends AbstractToolItem {
