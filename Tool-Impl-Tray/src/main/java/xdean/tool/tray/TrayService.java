@@ -13,7 +13,6 @@ import java.util.Map;
 
 import javafx.collections.ListChangeListener;
 import xdean.jex.util.collection.MapUtil;
-import xdean.tool.api.Context;
 import xdean.tool.api.ITool;
 import xdean.tool.api.ToolUtil;
 import xdean.tool.api.impl.SeparatorItem;
@@ -36,7 +35,7 @@ public enum TrayService {
   }
 
   public void start() throws AWTException {
-    tray = new TrayIcon(Toolkit.getDefaultToolkit().getImage(Context.HOME_PATH + "/icon.png"));
+    tray = new TrayIcon(Toolkit.getDefaultToolkit().getImage(Context.ICON_PATH));
     menuRoot = new PopupMenu();
     MenuItem mi = new MenuItem();
     mi.setLabel("Exit");

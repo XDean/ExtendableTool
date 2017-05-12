@@ -39,7 +39,7 @@ public class ToolJarLoader implements IToolResourceLoader {
   @Override
   public List<ITool> getTools(Path path) {
     try {
-      return new ToolJarUrl(path).getToolMenu();
+      return new ToolJarUrl(path).getTools();
     } catch (IOException e) {
       log.error("Illegal url", path, e);
     }
@@ -68,7 +68,7 @@ public class ToolJarLoader implements IToolResourceLoader {
       this.jarEntries = Collections.list(connection.getJarFile().entries());
     }
 
-    public List<ITool> getToolMenu() throws IOException {
+    public List<ITool> getTools() throws IOException {
       List<ITool> toolList = new ArrayList<>();
       URLClassLoader classLoader = getClassLoader();
       Observable.from(jarEntries)
