@@ -7,4 +7,21 @@
 		<artifactId>tool.my</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>io.reactivex</groupId>
+			<artifactId>rxjava-string</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.reactivex</groupId>
+				<artifactId>rxjava</artifactId>
+				<version>1.2.7</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
