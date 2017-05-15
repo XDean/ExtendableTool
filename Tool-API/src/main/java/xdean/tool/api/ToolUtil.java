@@ -1,7 +1,8 @@
 package xdean.tool.api;
 
-import static xdean.jex.util.task.TaskUtil.*;
+import static xdean.jex.util.task.TaskUtil.uncatch;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 
 import lombok.experimental.UtilityClass;
@@ -90,5 +91,32 @@ public class ToolUtil {
 
   public String getLastPath(String path) {
     return path.substring(path.lastIndexOf("/") + 1);
+  }
+
+  Tool create(String path, Class<?> parent) {
+    return new Tool() {
+      @Override
+      public Class<? extends Annotation> annotationType() {
+        return Tool.class;
+      }
+
+      @Override
+      public String path() {
+        return path;
+      }
+
+      @Override
+      public Class<?> parent() {
+        return parent;
+      }
+    };
+  }
+
+  Tool path(Tool origin, String path) {
+    return create(path, origin.parent());
+  }
+
+  Tool parent(Tool origin, Class<?> parent) {
+    return create(origin.path(), parent);
   }
 }
