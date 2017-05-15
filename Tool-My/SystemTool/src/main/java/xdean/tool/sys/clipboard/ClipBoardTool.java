@@ -45,7 +45,7 @@ public class ClipBoardTool extends TextToolItem {
     clearItem.onClick();
   }
 
-  static Scheduler scheduler = RxJavaSchedulersHook.createIoScheduler(new RxThreadFactory("ClipBoard-", 10));
+  static Scheduler scheduler = RxJavaSchedulersHook.createIoScheduler(new RxThreadFactory("ClipBoard-", 4));
 
   private void newContent() {
     log.debug("New content comes to clip board.");
