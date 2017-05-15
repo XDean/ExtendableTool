@@ -5,9 +5,13 @@ import static xdean.jex.util.task.TaskUtil.uncatch;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.experimental.Delegate;
 import lombok.experimental.UtilityClass;
 import rx.Observable;
 import rx.functions.Func1;
+import xdean.jex.extra.Pair;
 import xdean.jex.util.string.StringUtil;
 import xdean.tool.api.impl.TextToolItem;
 
@@ -22,31 +26,65 @@ public class ToolUtil {
    */
   public Observable<ITool> getTool(Class<?> clz) {
     // has @Tool
-    if (clz.getAnnotation(Tool.class) == null) {
+    Tool clzTool = clz.getAnnotation(Tool.class);
+    if (clzTool == null) {
       return Observable.empty();
     }
     return Observable.concat(
         Observable.just(clz)
             .filter(c -> ITool.class.isAssignableFrom(c))
             .map(c -> uncatch(() -> c.newInstance()))
-            .cast(ITool.class),
-        // field
-        Observable.from(clz.getDeclaredFields())
-            .filter(f -> (~f.getModifiers() & (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)) == 0)
-            .filter(f -> f.getAnnotation(Tool.class) != null)
-            .filter(f -> IToolGetter.class.isAssignableFrom(f.getType()))
-            .map(f -> uncatch(() -> f.get(null)))
-            .cast(IToolGetter.class)
-            .map(IToolGetter::get),
-        // method
-        Observable.from(clz.getDeclaredMethods())
-            .filter(m -> ((~m.getModifiers()) & (Modifier.PUBLIC | Modifier.STATIC)) == 0)
-            .filter(m -> m.getAnnotation(Tool.class) != null)
-            .filter(m -> m.getParameterCount() == 0)
-            .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
-            .map(m -> uncatch(() -> m.invoke(null, new Object[] {})))
-            .cast(ITool.class))
-        .filter(i -> i != null);
+            .cast(ITool.class)
+            .filter(t -> t != null),
+        Observable.<Pair<ITool, Tool>> concat(
+            // field
+            Observable.from(clz.getDeclaredFields())
+                .filter(f -> (~f.getModifiers() & (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)) == 0)
+                .flatMap(field ->
+                    Observable.just(field)
+                        .filter(f -> f.getAnnotation(Tool.class) != null)
+                        .filter(f -> IToolGetter.class.isAssignableFrom(f.getType()))
+                        .map(f -> uncatch(() -> f.get(null)))
+                        .cast(IToolGetter.class)
+                        .map(IToolGetter::get)
+                        .flatMap(t ->
+                            Observable.just(field)
+                                .map(f -> f.getAnnotation(Tool.class))
+                                .map(anno -> {
+                                  if (anno.parent() == defaultTool().parent()) {
+                                    return parent(anno, clz);
+                                  } else {
+                                    return anno;
+                                  }
+                                })
+                                .map(anno -> Pair.of(t, anno)))
+                ),
+            // method
+            Observable.from(clz.getDeclaredMethods())
+                .filter(m -> ((~m.getModifiers()) & (Modifier.PUBLIC | Modifier.STATIC)) == 0)
+                .flatMap(method ->
+                    Observable.just(method)
+                        .filter(m -> m.getAnnotation(Tool.class) != null)
+                        .filter(m -> m.getParameterCount() == 0)
+                        .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
+                        .map(m -> uncatch(() -> m.invoke(null, new Object[] {})))
+                        .cast(ITool.class)
+                        .flatMap(t ->
+                            Observable.just(method)
+                                .map(f -> f.getAnnotation(Tool.class))
+                                .map(anno -> {
+                                  if (anno.parent() == defaultTool().parent()) {
+                                    return parent(anno, clz);
+                                  } else {
+                                    return anno;
+                                  }
+                                })
+                                .map(anno -> Pair.of(t, anno)))
+                )
+            )
+            .filter(p -> p.getLeft() != null && p.getRight() != null)
+            .map(p -> new ToolWithAnno(p.getLeft(), p.getRight()))
+        );
   }
 
   public Observable<ITool> getWrappedTool(Class<?> clz) {
@@ -64,7 +102,8 @@ public class ToolUtil {
    * @return
    */
   public <T extends ITool> ITool wrapTool(ITool tool, Func1<String, ITool> func) {
-    return Observable.just(tool.getClass())
+    return Observable.just(tool)
+        .map(ToolUtil::getToolAnno)
         .map(ToolUtil::getToolPath)
         .flatMap(p -> Observable.from(p.split("/")))
         .filter(s -> s.length() > 0)
@@ -81,11 +120,25 @@ public class ToolUtil {
         .first();
   }
 
+  public Tool getToolAnno(ITool tool) {
+    Tool anno;
+    if (tool instanceof ToolWithAnno) {
+      anno = ((ToolWithAnno) tool).getAnno();
+    } else {
+      anno = tool.getClass().getAnnotation(Tool.class);
+    }
+    return anno;
+  }
+
   public String getToolPath(Class<?> clz) {
     Tool tool = clz.getAnnotation(Tool.class);
     if (tool == null) {
       return "";
     }
+    return getToolPath(tool);
+  }
+
+  public String getToolPath(Tool tool) {
     return String.join("/", getToolPath(tool.parent()), StringUtil.unWrap(tool.path(), "/", ""));
   }
 
@@ -118,5 +171,23 @@ public class ToolUtil {
 
   Tool parent(Tool origin, Class<?> parent) {
     return create(origin.path(), parent);
+  }
+
+  Tool defaultTool() {
+    return DefaultTool.defaultTool;
+  }
+
+  @Tool
+  @UtilityClass
+  private class DefaultTool {
+    Tool defaultTool = DefaultTool.class.getAnnotation(Tool.class);
+  }
+
+  @AllArgsConstructor
+  private class ToolWithAnno implements ITool {
+    @Delegate
+    ITool itool;
+    @Getter
+    Tool anno;
   }
 }
