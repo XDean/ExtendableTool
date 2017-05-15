@@ -43,5 +43,4 @@ public class CommandTool extends AbstractToolItem {
         .doOnCompleted(() -> log.info("[{}] completed.", command))
         .subscribe();
   }
-
 }
