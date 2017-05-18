@@ -12,6 +12,7 @@ import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -22,28 +23,36 @@ public class TrayServiceFx extends Application {
   public static final TrayServiceFx INSTANCE = new TrayServiceFx();
 
   public static void main(String[] args) throws AWTException {
-    launch(args);
+    INSTANCE.start();
   }
 
-  SystemTray  systemTray;
-  TrayIcon    tray;
-  Stage       stage;
+  boolean started;
+  SystemTray systemTray;
+  TrayIcon tray;
+  Stage stage;
   ContextMenu rootMenu;
 
   @Override
   public void start(Stage primaryStage) throws Exception {
     Platform.setImplicitExit(false);
+    stage = primaryStage;
+    stage.initStyle(StageStyle.UTILITY);
+    stage.setScene(new Scene(new Group(), 0, 0, Color.TRANSPARENT));
+    stage.setX(0);
+    stage.setY(0);
+
     systemTray = SystemTray.getSystemTray();
     rootMenu = createContextMenu();
-    stage = primaryStage;
-    stage = new Stage(StageStyle.UTILITY);
-    stage.setScene(new Scene(new Group(), 0, 0, Color.TRANSPARENT));
-    start();
-    stage.setOnHidden(e->stage.hide());
-    rootMenu.setOnAutoHide(e->System.out.println("stage hide"));
+    rootMenu.focusedProperty().addListener((ob, o, n) -> {
+      if (!n) {
+        rootMenu.hide();
+        stage.hide();
+      }
+    });
+    initTray();
   }
 
-  public void start() throws AWTException {
+  private void initTray() throws AWTException {
     tray = new TrayIcon(Toolkit.getDefaultToolkit().getImage(Context.ICON_PATH));
     tray.addMouseListener(new MouseAdapter() {
       @Override
@@ -57,6 +66,14 @@ public class TrayServiceFx extends Application {
     systemTray.add(tray);
   }
 
+  public void start() {
+    if (started) {
+      return;
+    }
+    started = true;
+    launch(TrayServiceFx.class);
+  }
+
   @Override
   public void stop() {
     if (tray != null) {
@@ -67,27 +84,26 @@ public class TrayServiceFx extends Application {
 
   private void show(int x, int y) {
     System.out.println("show");
-    stage.setX(Double.MAX_VALUE);
-    stage.setY(Double.MAX_VALUE);
     stage.show();
 
     rootMenu.setX(x);
     rootMenu.setY(y);
     rootMenu.show(stage);
+    rootMenu.requestFocus();
   }
 
   private ContextMenu createContextMenu() {
     MenuItem game = new MenuItem("Global Thermonuclear War");
-    game.setOnAction(event -> {
-      System.out.println("This is not a good option.");
-      rootMenu.hide();
-      stage.hide();
-    });
+    game.setOnAction(event -> System.out.println("This is not a good option."));
 
     MenuItem exit = new MenuItem("Exit");
 
+    Menu menu = new Menu("menu");
+    menu.setOnAction(e -> System.out.println("menu"));
+
     return new ContextMenu(
         game,
-        exit);
+        exit,
+        menu);
   }
 }

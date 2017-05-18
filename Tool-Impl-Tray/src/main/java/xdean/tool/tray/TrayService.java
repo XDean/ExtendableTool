@@ -24,7 +24,8 @@ public enum TrayService {
 
   TrayIcon tray;
   SystemTray systemTray;
-  PopupMenu menuRoot;
+  PopupMenu rootMenu;
+  ITool rootTool;
   Map<ITool, MenuItem> menuMap;
   Map<String, ITool> pathMap;
 
@@ -36,13 +37,16 @@ public enum TrayService {
 
   public void start() throws AWTException {
     tray = new TrayIcon(Toolkit.getDefaultToolkit().getImage(Context.ICON_PATH));
-    menuRoot = new PopupMenu();
+    rootTool = new TextToolItem("");
+    rootMenu = new PopupMenu();
+    menuMap.put(rootTool, rootMenu);
+    pathMap.put("/", rootTool);
     MenuItem mi = new MenuItem();
     mi.setLabel("Exit");
     mi.addActionListener(e -> System.exit(0));
-    menuRoot.addSeparator();
-    menuRoot.add(mi);
-    tray.setPopupMenu(menuRoot);
+    rootMenu.addSeparator();
+    rootMenu.add(mi);
+    tray.setPopupMenu(rootMenu);
     systemTray.add(tray);
   }
 
@@ -50,14 +54,14 @@ public enum TrayService {
     if (tray != null) {
       systemTray.remove(tray);
       tray = null;
-      menuRoot = null;
+      rootMenu = null;
     }
   }
 
   public void add(ITool tool) {
     tool = ToolUtil.wrapTool(tool, path -> MapUtil.getOrPutDefault(pathMap, path,
         () -> new TextToolItem(ToolUtil.getLastPath(path))));
-    menuRoot.insert(toMenuItem(tool), menuRoot.getItemCount() - 2);
+    rootMenu.insert(toMenuItem(tool), rootMenu.getItemCount() - 2);
   }
 
   public void addAll(List<ITool> tools) {
@@ -65,7 +69,7 @@ public enum TrayService {
   }
 
   public void remove(ITool tool) {
-    menuRoot.remove(toMenuItem(tool));
+    rootMenu.remove(toMenuItem(tool));
   }
 
   private MenuItem toMenuItem(ITool tool) {
