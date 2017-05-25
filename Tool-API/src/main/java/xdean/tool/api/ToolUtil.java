@@ -108,7 +108,7 @@ public class ToolUtil {
         .flatMap(p -> Observable.from(p.split("/")))
         .filter(s -> s.length() > 0)
         .scan((s1, s2) -> String.join("/", s1, s2))
-        .startWith("/") // root path
+        // .startWith("/") // root path XXX what's for
         .map(func)
         .concatWith(Observable.just(tool))
         .scan((a, b) -> {

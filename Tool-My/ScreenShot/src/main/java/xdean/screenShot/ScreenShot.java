@@ -64,6 +64,7 @@ public class ScreenShot {
     }
   }
 
+  // FIXME unregister and register again will lead double listener
   public void register() {
     JIntellitype jni = JIntellitype.getInstance();
     jni.registerHotKey(0, Config.getProperty(KEY).orElse(DEFAULT_KEY));

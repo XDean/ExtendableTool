@@ -1,7 +1,7 @@
 package xdean.tool.api;
 
 import static org.junit.Assert.assertEquals;
-import static xdean.jex.util.lang.AssertUtil.*;
+import static xdean.jex.util.lang.AssertUtil.assertInstanceOf;
 import static xdean.tool.api.ToolUtil.*;
 
 import org.junit.Test;
@@ -11,8 +11,8 @@ import xdean.tool.api.toolUtil.B;
 import xdean.tool.api.toolUtil.C;
 import xdean.tool.api.toolUtil.NoAnno;
 import xdean.tool.api.toolUtil.NoDefaultConstruct;
-import xdean.tool.api.toolUtil.WithClass;
 import xdean.tool.api.toolUtil.NotTool;
+import xdean.tool.api.toolUtil.WithClass;
 import xdean.tool.api.toolUtil.WithField;
 import xdean.tool.api.toolUtil.WithMethod;
 
@@ -37,7 +37,7 @@ public class ToolUtilTest {
   
   @Test
   public void testToolPath(){
-    ITool a = getWrappedTool(C.class).toBlocking().first();
+    ITool a = getWrappedTool(C.class).toSingle().toBlocking().value();
     ITool b = a.getChildren().get(0);
     ITool c = b.getChildren().get(0);
     assertInstanceOf(c, C.class);
