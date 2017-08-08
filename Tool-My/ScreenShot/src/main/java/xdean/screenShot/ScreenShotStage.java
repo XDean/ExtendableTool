@@ -4,17 +4,20 @@ import java.util.function.Consumer;
 
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import xdean.jex.util.task.If;
 import xdean.jfx.ex.support.DragSupport;
 
 public class ScreenShotStage extends Stage {
@@ -23,12 +26,12 @@ public class ScreenShotStage extends Stage {
   private ImageView mainImageView;
   private Group rootGroup;
   private Scene scene;
+  double[] startPos = new double[2];
+  private HBox toolGroup;
 
   public ScreenShotStage() {
     super(StageStyle.TRANSPARENT);
-    initScene();
-    initRectangle();
-    initImageView();
+    initComponent();
     initEvent();
     this.setScene(scene);
     this.setWidth(Screen.getPrimary().getBounds().getWidth());
@@ -43,12 +46,20 @@ public class ScreenShotStage extends Stage {
   }
 
   public ScreenShotStage addToolButton(String text, Consumer<ScreenShotStage> onClick) {
-    // TODO
+    Button button = new Button();
+    button.setText(text);
+    button.setOnMouseClicked(e -> If.that(e.getButton() == MouseButton.PRIMARY).todo(() -> onClick.accept(this)));
+    toolGroup.getChildren().add(button);
     return this;
   }
 
+  private void updateMask() {
+    maskRectangle.setClip(Shape.subtract(maskRectangle, targetRectangle));
+  }
+
   private void initEvent() {
-    double[] startPos = new double[2];
+    DragSupport.bind(targetRectangle).doOnDrag(this::updateMask);
+
     scene.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
       startPos[0] = e.getScreenX();
       startPos[1] = e.getScreenY();
@@ -60,13 +71,10 @@ public class ScreenShotStage extends Stage {
       targetRectangle.setLayoutY(Math.min(e.getScreenY(), startPos[1]));
       targetRectangle.setWidth(Math.abs(e.getScreenX() - startPos[0]));
       targetRectangle.setHeight(Math.abs(e.getScreenY() - startPos[1]));
-      maskRectangle.setClip(Shape.subtract(maskRectangle, targetRectangle));
+      updateMask();
     });
-    scene.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-      if (e.getCode() == KeyCode.ESCAPE) {
-        this.hide();
-      }
-    });
+    scene.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> updateMask());
+    scene.addEventHandler(KeyEvent.KEY_PRESSED, e -> If.that(e.getCode() == KeyCode.ESCAPE).todo(this::hide));
     scene.addEventHandler(
         MouseEvent.MOUSE_CLICKED,
         e -> {
@@ -80,7 +88,7 @@ public class ScreenShotStage extends Stage {
             } else if (e.getButton() == MouseButton.SECONDARY) {
               targetRectangle.setWidth(0);
               targetRectangle.setHeight(0);
-              maskRectangle.setClip(Shape.subtract(maskRectangle, targetRectangle));
+              updateMask();
             }
           } else {
             if (e.getButton() == MouseButton.SECONDARY || e.getClickCount() > 1) {
@@ -91,20 +99,9 @@ public class ScreenShotStage extends Stage {
         });
   }
 
-  private void initImageView() {
+  private void initComponent() {
+
     mainImageView = new ImageView();
-    rootGroup.getChildren().addAll(mainImageView, maskRectangle, targetRectangle);
-  }
-
-  private void initScene() {
-    rootGroup = new Group();
-    scene = new Scene(rootGroup, 200, 200, Color.TRANSPARENT);
-  }
-
-  private void initRectangle() {
-    targetRectangle = new Rectangle();
-    targetRectangle.setFill(Color.TRANSPARENT);
-    targetRectangle.setStroke(Color.BLACK);
 
     maskRectangle = new Rectangle();
     maskRectangle.setLayoutX(0);
@@ -113,7 +110,17 @@ public class ScreenShotStage extends Stage {
     maskRectangle.setHeight(Screen.getPrimary().getBounds().getHeight());
     maskRectangle.setFill(new Color(0, 0, 0, 0.3));
 
-    DragSupport.bind(targetRectangle)
-        .doOnDrag(() -> maskRectangle.setClip(Shape.subtract(maskRectangle, targetRectangle)));
+    targetRectangle = new Rectangle();
+    targetRectangle.setFill(Color.TRANSPARENT);
+    targetRectangle.setStroke(Color.BLACK);
+
+    toolGroup = new HBox();
+    toolGroup.visibleProperty().bind(targetRectangle.widthProperty().greaterThan(0));
+    toolGroup.layoutXProperty().bind(targetRectangle.layoutXProperty());
+    toolGroup.layoutYProperty().bind(targetRectangle.layoutYProperty().add(targetRectangle.heightProperty()));
+
+    rootGroup = new Group();
+    scene = new Scene(rootGroup, 200, 200, Color.TRANSPARENT);
+    rootGroup.getChildren().addAll(mainImageView, maskRectangle, targetRectangle, toolGroup);
   }
 }

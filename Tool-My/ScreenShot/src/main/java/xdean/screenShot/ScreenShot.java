@@ -13,7 +13,6 @@ import javafx.stage.Screen;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import xdean.jex.config.Config;
-import xdean.jex.util.task.TaskUtil;
 
 import com.melloware.jintellitype.HotkeyListener;
 import com.melloware.jintellitype.JIntellitype;
@@ -30,11 +29,10 @@ public class ScreenShot {
   };
   private/* final */ScreenShotStage stage;
   static {
-    TaskUtil.uncatch(() -> PlatformImpl.startup(() -> {
+    PlatformImpl.startup(() -> {
       PlatformImpl.setTaskbarApplication(false);
       Platform.setImplicitExit(false);
-      stage = new ScreenShotStage();
-    }));
+    });
     Config.setIfAbsent(KEY, DEFAULT_KEY);
   }
 
@@ -42,6 +40,10 @@ public class ScreenShot {
     // register();
     Platform.setImplicitExit(true);
     show();
+    Platform.runLater(() -> {
+      initStage();
+      stage.setOnHidden(e -> System.exit(0));
+    });
   }
 
   public void register(boolean b) {
@@ -66,9 +68,19 @@ public class ScreenShot {
 
   public void show() {
     Platform.runLater(() -> {
+      initStage();
       stage.reshot();
       stage.show();
     });
+  }
+
+  private void initStage() {
+    if (stage == null) {
+      stage = new ScreenShotStage();
+      stage.addToolButton("1", s -> System.out.println(1));
+      stage.addToolButton("2", s -> System.out.println(2));
+      stage.addToolButton("3", s -> System.out.println(3));
+    }
   }
 
   @SneakyThrows
