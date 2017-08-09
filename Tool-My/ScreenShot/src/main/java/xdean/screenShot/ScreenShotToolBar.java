@@ -26,6 +26,7 @@ import xdean.jex.util.task.If;
 public class ScreenShotToolBar {
 
   private static final String KEY_SCREEN_SHOT__SAVE = "ScreenShotLastSavePath";
+  private static final File DEFAULT_SAVE_DIR = new File(System.getProperty("user.home"));
 
   public static ScreenShotStage enableSave(ScreenShotStage stage) {
     DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -40,8 +41,11 @@ public class ScreenShotToolBar {
     return stage.addToolButton("save", s -> {
       s.setAlwaysOnTop(false);
       fc.setInitialFileName("ScreenShot" + df.format(new Date()));
-      fc.setInitialDirectory(new File(Config.getProperty(KEY_SCREEN_SHOT__SAVE).orElseGet(
-          () -> System.getProperty("user.home"))));
+      fc.setInitialDirectory(
+          Config.getProperty(KEY_SCREEN_SHOT__SAVE)
+              .map(File::new)
+              .filter(File::exists)
+              .orElse(DEFAULT_SAVE_DIR));
       BufferedImage screenShot = SwingFXUtils.fromFXImage(s.getScreenShot(), null);
       Optional.ofNullable(fc.showSaveDialog(s.getOwner()))
           .ifPresent(file -> throwToReturn(
