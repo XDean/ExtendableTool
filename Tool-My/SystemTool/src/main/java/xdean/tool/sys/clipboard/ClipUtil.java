@@ -1,5 +1,7 @@
 package xdean.tool.sys.clipboard;
 
+import static xdean.jex.util.function.FunctionAdapter.supplierToRunnable;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,7 +24,6 @@ import javax.imageio.ImageIO;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import xdean.jex.extra.Wrapper;
 import xdean.jex.util.security.SecurityUtil;
 import xdean.tool.api.Context;
 
@@ -44,7 +45,7 @@ public class ClipUtil {
     PlatformImpl.startup(() -> CLIPBOARD = Clipboard.getSystemClipboard());
   }
 
-  private SimpleDateFormat dateFormat = new SimpleDateFormat("MMddHHmmssSSS");
+  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 
   public Optional<String> getClipText() {
     return getFX(() -> Optional.ofNullable(CLIPBOARD.getString()));
@@ -71,7 +72,7 @@ public class ClipUtil {
   }
 
   public String saveImage(BufferedImage image) throws IOException {
-    String name = ClipUtil.normalizeTextLength(String.format("Image%s.png", dateFormat.format(new Date())));
+    String name = normalizeTextLength(String.format("Image%s.png", dateFormat.format(new Date())));
     ImageIO.write(image, "png", new File(TEMP_PATH.toString(), name));
     image.flush();
     return name;
@@ -118,9 +119,7 @@ public class ClipUtil {
   }
 
   private <T> T getFX(Supplier<T> sup) {
-    Wrapper<T> wrapper = Wrapper.of(null);
-    PlatformImpl.runAndWait(() -> wrapper.set(sup.get()));
-    return wrapper.get();
+    return supplierToRunnable(sup, PlatformImpl::runAndWait);
   }
 
   private void runFX(Runnable r) {
