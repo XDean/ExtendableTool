@@ -77,9 +77,7 @@ public class ScreenShot {
   private void initStage() {
     if (stage == null) {
       stage = new ScreenShotStage();
-      stage.addToolButton("1", s -> System.out.println(1));
-      stage.addToolButton("2", s -> System.out.println(2));
-      stage.addToolButton("3", s -> System.out.println(3));
+      ScreenShotToolBar.enableSave(stage);
     }
   }
 

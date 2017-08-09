@@ -1,10 +1,12 @@
 package xdean.screenShot;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -17,10 +19,18 @@ import javafx.scene.shape.Shape;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import javax.imageio.ImageIO;
+
+import xdean.jex.util.log.Logable;
 import xdean.jex.util.task.If;
 import xdean.jfx.ex.support.DragSupport;
 
-public class ScreenShotStage extends Stage {
+public class ScreenShotStage extends Stage implements Logable {
+  public static void main(String[] args) {
+    System.out.println(Arrays.toString(ImageIO.getWriterFormatNames()));
+  }
+
   private Rectangle targetRectangle;
   private Rectangle maskRectangle;
   private ImageView mainImageView;
@@ -41,6 +51,14 @@ public class ScreenShotStage extends Stage {
     this.setAlwaysOnTop(true);
   }
 
+  @Override
+  public void hide() {
+    super.hide();
+    targetRectangle.setWidth(0);
+    targetRectangle.setHeight(0);
+    updateMask();
+  }
+
   public void reshot() {
     mainImageView.setImage(ScreenShot.getScreenShot());
   }
@@ -51,6 +69,12 @@ public class ScreenShotStage extends Stage {
     button.setOnMouseClicked(e -> If.that(e.getButton() == MouseButton.PRIMARY).todo(() -> onClick.accept(this)));
     toolGroup.getChildren().add(button);
     return this;
+  }
+
+  public Image getScreenShot() {
+    Shape shape = Shape.union(targetRectangle, new Rectangle());
+    mainImageView.setClip(shape);
+    return mainImageView.snapshot(null, null);
   }
 
   private void updateMask() {
@@ -81,9 +105,8 @@ public class ScreenShotStage extends Stage {
           if (targetRectangle.contains(e.getScreenX() - targetRectangle.getLayoutX(),
               e.getScreenY() - targetRectangle.getLayoutY())) {
             if (e.getClickCount() > 1) {
-              Shape shape = Shape.union(targetRectangle, new Rectangle());
-              mainImageView.setClip(shape);
-              ScreenShot.putIntoClipBoard(mainImageView.snapshot(null, null));
+              ScreenShot.putIntoClipBoard(getScreenShot());
+              e.consume();
               this.hide();
             } else if (e.getButton() == MouseButton.SECONDARY) {
               targetRectangle.setWidth(0);
@@ -100,7 +123,6 @@ public class ScreenShotStage extends Stage {
   }
 
   private void initComponent() {
-
     mainImageView = new ImageView();
 
     maskRectangle = new Rectangle();
