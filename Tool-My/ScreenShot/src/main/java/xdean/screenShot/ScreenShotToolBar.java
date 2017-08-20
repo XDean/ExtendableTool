@@ -1,6 +1,6 @@
 package xdean.screenShot;
 
-import static xdean.jex.util.task.TaskUtil.throwToReturn;
+import static xdean.jex.util.lang.ExceptionUtil.throwToReturn;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;

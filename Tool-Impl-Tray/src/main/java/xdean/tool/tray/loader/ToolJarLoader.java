@@ -1,6 +1,6 @@
 package xdean.tool.tray.loader;
 
-import static xdean.jex.util.task.TaskUtil.uncheck;
+import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ import xdean.tool.api.ToolUtil;
 /**
  * ToolJarLoader will load .jar file.<br>
  * It resolve both packaged library in jar file and library in a sub-folder named "XXX_lib".
- * 
+ *
  * @author XDean
  *
  */
@@ -81,7 +81,7 @@ public class ToolJarLoader implements IToolResourceLoader {
 
     /**
      * Default lib path with name "xxx_lib"
-     * 
+     *
      * @param path
      * @return
      * @throws MalformedURLException
@@ -92,7 +92,7 @@ public class ToolJarLoader implements IToolResourceLoader {
 
     /**
      * Get urls with the jar file and its lib(inner and outer)
-     * 
+     *
      * @return
      * @throws IOException
      */

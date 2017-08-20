@@ -1,6 +1,6 @@
 package xdean.tool.api;
 
-import static xdean.jex.util.task.TaskUtil.uncatch;
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
@@ -20,7 +20,7 @@ public class ToolUtil {
 
   /**
    * Get tools from the class without any processing.
-   * 
+   *
    * @param clz
    * @return
    */
@@ -96,7 +96,7 @@ public class ToolUtil {
   }
 
   /**
-   * 
+   *
    * @param tool the tool to wrap
    * @param func from absolute path to tool
    * @return

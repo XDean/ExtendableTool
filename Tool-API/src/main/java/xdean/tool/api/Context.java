@@ -1,6 +1,6 @@
 package xdean.tool.api;
 
-import static xdean.jex.util.task.TaskUtil.uncheck;
+import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

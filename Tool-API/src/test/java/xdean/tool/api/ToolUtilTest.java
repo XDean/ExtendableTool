@@ -34,9 +34,9 @@ public class ToolUtilTest {
     getTool(WithField.class).test().assertValueCount(1);
     getTool(WithMethod.class).test().assertValueCount(1);
   }
-  
+
   @Test
-  public void testToolPath(){
+  public void testToolPath() {
     ITool a = getWrappedTool(C.class).toSingle().toBlocking().value();
     ITool b = a.getChildren().get(0);
     ITool c = b.getChildren().get(0);

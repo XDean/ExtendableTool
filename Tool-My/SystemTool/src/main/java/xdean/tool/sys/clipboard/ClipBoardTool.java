@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 import rx.Scheduler;
 import rx.plugins.RxJavaSchedulersHook;
-import xdean.jex.util.task.TaskUtil;
+import xdean.jex.util.lang.ExceptionUtil;
 import xdean.tool.api.ITool;
 import xdean.tool.api.Tool;
 import xdean.tool.api.impl.SeparatorItem;
@@ -66,7 +66,7 @@ public class ClipBoardTool extends TextToolItem {
               }
             }))
         .doOnNext(o ->
-            ClipUtil.getClipImage().ifPresent(image -> TaskUtil.uncatch(() -> {
+            ClipUtil.getClipImage().ifPresent(image -> ExceptionUtil.uncatch(() -> {
               BufferedImage bImage = ClipUtil.toBufferedImage(image);
               String md5 = ClipUtil.md5(bImage);
               if (imageMap.containsKey(md5)) {

@@ -8,24 +8,24 @@ import javafx.beans.property.StringProperty;
 import xdean.tool.api.ITool;
 
 public enum SeparatorItem implements ITool {
-	INSTANCE;
-	@Override
-	public StringProperty textProperty() {
-		return null;
-	}
+  INSTANCE;
+  @Override
+  public StringProperty textProperty() {
+    return null;
+  }
 
-	@Override
-	public ObjectProperty<URL> iconUrlProperty() {
-		return null;
-	}
+  @Override
+  public ObjectProperty<URL> iconUrlProperty() {
+    return null;
+  }
 
-	@Override
-	public ListProperty<ITool> childrenProperty() {
-		return null;
-	}
+  @Override
+  public ListProperty<ITool> childrenProperty() {
+    return null;
+  }
 
-	@Override
-	public void onClick() {
-	}
+  @Override
+  public void onClick() {
+  }
 
 }
