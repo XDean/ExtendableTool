@@ -3,10 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>xdean</groupId>
 	<artifactId>tool</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
+		<xdean.jex.version>0.0.3-SNAPSHOT</xdean.jex.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<rootdir>${session.executionRootDirectory}/</rootdir>
 		<resourceFolder>src/main/resources</resourceFolder>
@@ -20,7 +21,7 @@
 		<dependency>
 			<groupId>xdean</groupId>
 			<artifactId>Java-EX</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>${xdean.jex.version}</version>
 		</dependency>
 	</dependencies>
 

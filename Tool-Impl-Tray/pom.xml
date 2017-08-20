@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>xdean</groupId>
 		<artifactId>tool</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 	</parent>
 	<dependencies>
 		<!-- https://github.com/WenzheLiu/filewatcher -->
@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>xdean</groupId>
 			<artifactId>tool.api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${version}</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

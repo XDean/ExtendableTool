@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>xdean</groupId>
 		<artifactId>tool.my</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 	</parent>
 	<dependencies>
 		<dependency>
 			<groupId>xdean</groupId>
 			<artifactId>JavaFX-EX</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.melloware</groupId>
