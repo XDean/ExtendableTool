@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
  * 1. Construct an instance to tried to convert to a tool item<br>
  * 2. Each public static final {@code IToolGetter} with {@code @Tool} will be tried to call {@code get} and convert to
  * tool item.<br>
- * 3. Each public static method with {@code @Tool} with no parameter will be called and convert the result to toll item.
- * 
+ * 3. Each public static method with {@code @Tool} with no parameter will be called and convert the result to tool item.
+ *
  * For situation 2 and 3, parent is the class by default.
- * 
+ *
  * @author XDean
  *
  */

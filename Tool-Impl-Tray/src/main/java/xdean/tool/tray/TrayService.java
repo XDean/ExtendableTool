@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.collections.ListChangeListener;
+import sun.awt.AWTAccessor;
+import xdean.jex.extra.Wrapper;
 import xdean.jex.util.collection.MapUtil;
 import xdean.tool.api.ITool;
 import xdean.tool.api.ToolUtil;
@@ -82,43 +84,66 @@ public enum TrayService {
     return item;
   }
 
+  private int getIndex(Menu parent, MenuItem item) {
+    return AWTAccessor.getMenuAccessor().getItems(parent).indexOf(item);
+  }
+
   private MenuItem convertToMenuItem(ITool tool) {
     List<ITool> children = tool.childrenProperty();
     if (tool instanceof SeparatorItem) {
       return new MenuItem("-");
     }
-    if (children.size() == 0) {
-      MenuItem item = new MenuItem();
-      item.setLabel(tool.getText());
-      item.addActionListener(e -> tool.onClick());
-      tool.textProperty().addListener((ob, o, n) -> item.setLabel(n));
-      return item;
-    } else {
-      Menu menu = new Menu();
-      menu.setLabel(tool.getText());
-      tool.textProperty().addListener((ob, o, n) -> menu.setLabel(n));
-      children.forEach(item -> menu.add(toMenuItem(item)));
-      tool.childrenProperty().addListener(new ListChangeListener<ITool>() {
-        @Override
-        public void onChanged(Change<? extends ITool> c) {
-          while (c.next()) {
-            if (c.wasPermutated()) {
-            } else if (c.wasUpdated()) {
-            } else {
-              for (ITool remitem : c.getRemoved()) {
-                MenuItem removed = menuMap.remove(remitem);
-                if (removed != null) {
-                  menu.remove(removed);
-                }
-              }
-              for (ITool additem : c.getAddedSubList()) {
-                MenuItem item = toMenuItem(additem);
-                menu.add(item);
-              }
-            }
+    MenuItem menuItem = new MenuItem();
+    menuItem.setLabel(tool.getText());
+    menuItem.addActionListener(e -> tool.onClick());
+    tool.textProperty().addListener((ob, o, n) -> menuItem.setLabel(n));
+
+    Menu menu = new Menu();
+    menu.setLabel(tool.getText());
+    tool.textProperty().addListener((ob, o, n) -> menu.setLabel(n));
+    children.forEach(item -> menu.add(toMenuItem(item)));
+
+    Wrapper<Boolean> isItem = Wrapper.of(children.size() == 0);
+    tool.childrenProperty().addListener((ListChangeListener<ITool>) c -> {
+      while (c.next()) {
+        // Item to menu
+        if (c.getList().size() != 0 && isItem.get() == true) {
+          Menu parent = (Menu) menuItem.getParent();
+          if (parent != null) {
+            int index = getIndex(parent, menuItem);
+            parent.remove(index);
+            parent.insert(menu, index);
           }
         }
-      });
+        // Menu to item
+        else if (c.getList().size() == 0 && isItem.get() == false) {
+          Menu parent = (Menu) menu.getParent();
+          if (parent != null) {
+            int index = getIndex(parent, menu);
+            parent.remove(index);
+            parent.insert(menuItem, index);
+          }
+        }
+        if (c.wasPermutated()) {
+        } else if (c.wasUpdated()) {
+        } else {
+          for (ITool remitem : c.getRemoved()) {
+            MenuItem removed = menuMap.remove(remitem);
+            if (removed != null) {
+              menu.remove(removed);
+            }
+          }
+          for (ITool additem : c.getAddedSubList()) {
+            MenuItem item = toMenuItem(additem);
+            menu.add(item);
+          }
+        }
+      }
+    });
+
+    if (children.size() == 0) {
+      return menuItem;
+    } else {
       return menu;
     }
   }
