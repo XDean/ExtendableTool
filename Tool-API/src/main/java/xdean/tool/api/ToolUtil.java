@@ -35,7 +35,13 @@ public class ToolUtil {
             .filter(c -> ITool.class.isAssignableFrom(c))
             .map(c -> uncatch(() -> c.newInstance()))
             .cast(ITool.class)
-            .filter(t -> t != null),
+            .filter(t -> t != null)
+            .map(t -> {
+              if (clz.getDeclaringClass() != null && clzTool.parent() == defaultTool().parent()) {
+                return new ToolWithAnno(t, parent(clzTool, clz.getDeclaringClass()));
+              }
+              return t;
+            }),
         Observable.<Pair<ITool, Tool>> concat(
             // field
             Observable.from(clz.getDeclaredFields())
@@ -108,7 +114,6 @@ public class ToolUtil {
         .flatMap(p -> Observable.from(p.split("/")))
         .filter(s -> s.length() > 0)
         .scan((s1, s2) -> String.join("/", s1, s2))
-        // .startWith("/") // root path XXX what's for
         .map(func)
         .concatWith(Observable.just(tool))
         .scan((a, b) -> {

@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  * tool item.<br>
  * 3. Each public static method with {@code @Tool} with no parameter will be called and convert the result to tool item.
  *
+ * For situation 1, if the class is a nest class, parent is its declaring class by default.<br>
  * For situation 2 and 3, parent is the class by default.
  *
  * @author XDean

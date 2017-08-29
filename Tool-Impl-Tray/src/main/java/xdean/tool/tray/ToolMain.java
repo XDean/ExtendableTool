@@ -32,8 +32,8 @@ public class ToolMain {
   }
 
   /**
-   * Copy file cannot be listened
-   * 
+   * XXX Dean. Sometimes copy file cannot be listened
+   *
    * @param dir
    */
   @Beta

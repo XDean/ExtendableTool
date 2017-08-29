@@ -12,7 +12,7 @@ import xdean.tool.sys.Util;
 @Tool(parent = SystemTools.class, path = "Shutdown")
 public class ShutdownTool {
 
-  @Tool(parent = ShutdownTool.class)
+  @Tool
   public static class TimedShutdown extends AbstractToolItem {
     private static final String DO = "Timed";
     private static final String CANCEL = "Cancel";
