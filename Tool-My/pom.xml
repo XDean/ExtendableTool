@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>xdean</groupId>
 			<artifactId>tool.api</artifactId>
-			<version>${version}</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
