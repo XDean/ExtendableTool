@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<xdean.jex.version>0.0.3-SNAPSHOT</xdean.jex.version>
+		<xdean.jex.version>0.0.4-SNAPSHOT</xdean.jex.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<rootdir>${session.executionRootDirectory}/</rootdir>
 		<resourceFolder>src/main/resources</resourceFolder>
@@ -22,6 +22,12 @@
 			<groupId>xdean</groupId>
 			<artifactId>Java-EX</artifactId>
 			<version>${xdean.jex.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
