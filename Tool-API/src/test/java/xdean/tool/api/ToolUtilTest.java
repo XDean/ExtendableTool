@@ -27,12 +27,12 @@ public class ToolUtilTest {
 
   @Test
   public void testGetTool() {
-    getTool(NoAnno.class).test().assertValueCount(0);
-    getTool(NotTool.class).test().assertValueCount(0);
-    getTool(NoDefaultConstruct.class).test().assertValueCount(0);
-    getTool(WithClass.class).test().assertValueCount(1);
-    getTool(WithField.class).test().assertValueCount(1);
-    getTool(WithMethod.class).test().assertValueCount(1);
+    loadTool(NoAnno.class).test().assertValueCount(0);
+    loadTool(NotTool.class).test().assertValueCount(0);
+    loadTool(NoDefaultConstruct.class).test().assertValueCount(0);
+    loadTool(WithClass.class).test().assertValueCount(1);
+    loadTool(WithField.class).test().assertValueCount(1);
+    loadTool(WithMethod.class).test().assertValueCount(1);
   }
 
   @Test

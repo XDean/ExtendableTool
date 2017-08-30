@@ -10,38 +10,39 @@ import lombok.Getter;
 import lombok.experimental.Delegate;
 import lombok.experimental.UtilityClass;
 import rx.Observable;
+import rx.Observable.Transformer;
 import rx.functions.Func1;
 import xdean.jex.extra.Pair;
 import xdean.jex.util.string.StringUtil;
+import xdean.jex.util.task.If;
 import xdean.tool.api.impl.TextToolItem;
 
-@UtilityClass
 public class ToolUtil {
 
   /**
-   * Get tools from the class without any processing.
+   * Load tools from the class.
    *
    * @param clz
    * @return
    */
-  public Observable<ITool> getTool(Class<?> clz) {
+  public static Observable<ITool> loadTool(Class<?> clz) {
     // has @Tool
     Tool clzTool = clz.getAnnotation(Tool.class);
     if (clzTool == null) {
       return Observable.empty();
     }
     return Observable.concat(
+        // class
         Observable.just(clz)
             .filter(c -> ITool.class.isAssignableFrom(c))
             .map(c -> uncatch(() -> c.newInstance()))
             .cast(ITool.class)
             .filter(t -> t != null)
-            .map(t -> {
-              if (clz.getDeclaringClass() != null && clzTool.parent() == defaultTool().parent()) {
-                return new ToolWithAnno(t, parent(clzTool, clz.getDeclaringClass()));
-              }
-              return t;
-            }),
+            .map(t -> If.<ITool> that(clz.getDeclaringClass() != null)
+                .and(() -> clzTool.parent() == defaultTool().parent())
+                .tobe(new ToolWithAnno(t, parent(clzTool, clz.getDeclaringClass())))
+                .orbe(t)
+                .result()),
         Observable.<Pair<ITool, Tool>> concat(
             // field
             Observable.from(clz.getDeclaredFields())
@@ -53,17 +54,9 @@ public class ToolUtil {
                         .map(f -> uncatch(() -> f.get(null)))
                         .cast(IToolGetter.class)
                         .map(IToolGetter::get)
-                        .flatMap(t ->
-                            Observable.just(field)
-                                .map(f -> f.getAnnotation(Tool.class))
-                                .map(anno -> {
-                                  if (anno.parent() == defaultTool().parent()) {
-                                    return parent(anno, clz);
-                                  } else {
-                                    return anno;
-                                  }
-                                })
-                                .map(anno -> Pair.of(t, anno)))
+                        .flatMap(t -> Observable.just(field)
+                            .map(f -> f.getAnnotation(Tool.class))
+                            .compose(defaultParent(t, clz)))
                 ),
             // method
             Observable.from(clz.getDeclaredMethods())
@@ -75,17 +68,9 @@ public class ToolUtil {
                         .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
                         .map(m -> uncatch(() -> m.invoke(null, new Object[] {})))
                         .cast(ITool.class)
-                        .flatMap(t ->
-                            Observable.just(method)
-                                .map(f -> f.getAnnotation(Tool.class))
-                                .map(anno -> {
-                                  if (anno.parent() == defaultTool().parent()) {
-                                    return parent(anno, clz);
-                                  } else {
-                                    return anno;
-                                  }
-                                })
-                                .map(anno -> Pair.of(t, anno)))
+                        .flatMap(t -> Observable.just(method)
+                            .map(f -> f.getAnnotation(Tool.class))
+                            .compose(defaultParent(t, clz)))
                 )
             )
             .filter(p -> p.getLeft() != null && p.getRight() != null)
@@ -93,11 +78,19 @@ public class ToolUtil {
         );
   }
 
-  public Observable<ITool> getWrappedTool(Class<?> clz) {
-    return getTool(clz).map(ToolUtil::wrapTool);
+  private static Transformer<Tool, Pair<ITool, Tool>> defaultParent(ITool tool, Class<?> loadingClass) {
+    return o -> o.map(anno -> If.<Tool> that(anno.parent() == defaultTool().parent())
+        .tobe(parent(anno, loadingClass))
+        .orbe(anno)
+        .result())
+        .<Pair<ITool, Tool>> map(anno -> Pair.of(tool, anno));
   }
 
-  public <T extends ITool> ITool wrapTool(ITool tool) {
+  public static Observable<ITool> getWrappedTool(Class<?> clz) {
+    return loadTool(clz).map(ToolUtil::wrapTool);
+  }
+
+  public static <T extends ITool> ITool wrapTool(ITool tool) {
     return wrapTool(tool, str -> new TextToolItem(getLastPath(str)));
   }
 
@@ -107,7 +100,7 @@ public class ToolUtil {
    * @param func from absolute path to tool
    * @return
    */
-  public <T extends ITool> ITool wrapTool(ITool tool, Func1<String, ITool> func) {
+  public static <T extends ITool> ITool wrapTool(ITool tool, Func1<String, ITool> func) {
     return Observable.just(tool)
         .map(ToolUtil::getToolAnno)
         .map(ToolUtil::getToolPath)
@@ -126,7 +119,7 @@ public class ToolUtil {
         .first();
   }
 
-  public Tool getToolAnno(ITool tool) {
+  public static Tool getToolAnno(ITool tool) {
     Tool anno;
     if (tool instanceof ToolWithAnno) {
       anno = ((ToolWithAnno) tool).getAnno();
@@ -136,7 +129,7 @@ public class ToolUtil {
     return anno;
   }
 
-  public String getToolPath(Class<?> clz) {
+  public static String getToolPath(Class<?> clz) {
     Tool tool = clz.getAnnotation(Tool.class);
     if (tool == null) {
       return "";
@@ -144,15 +137,15 @@ public class ToolUtil {
     return getToolPath(tool);
   }
 
-  public String getToolPath(Tool tool) {
+  public static String getToolPath(Tool tool) {
     return String.join("/", getToolPath(tool.parent()), StringUtil.unWrap(tool.path(), "/", ""));
   }
 
-  public String getLastPath(String path) {
+  public static String getLastPath(String path) {
     return path.substring(path.lastIndexOf("/") + 1);
   }
 
-  Tool create(String path, Class<?> parent) {
+  private static Tool create(String path, Class<?> parent) {
     return new Tool() {
       @Override
       public Class<? extends Annotation> annotationType() {
@@ -171,26 +164,27 @@ public class ToolUtil {
     };
   }
 
-  Tool path(Tool origin, String path) {
+  @SuppressWarnings("unused")
+  private static Tool path(Tool origin, String path) {
     return create(path, origin.parent());
   }
 
-  Tool parent(Tool origin, Class<?> parent) {
+  private static Tool parent(Tool origin, Class<?> parent) {
     return create(origin.path(), parent);
   }
 
-  Tool defaultTool() {
+  private static Tool defaultTool() {
     return DefaultTool.defaultTool;
   }
 
   @Tool
   @UtilityClass
-  private class DefaultTool {
+  private static class DefaultTool {
     Tool defaultTool = DefaultTool.class.getAnnotation(Tool.class);
   }
 
   @AllArgsConstructor
-  private class ToolWithAnno implements ITool {
+  private static class ToolWithAnno implements ITool {
     @Delegate
     ITool itool;
     @Getter

@@ -75,6 +75,9 @@ public enum TrayService {
   }
 
   private MenuItem toMenuItem(ITool tool) {
+    if (tool instanceof SeparatorItem) {
+      return new MenuItem("-");
+    }
     MenuItem item = menuMap.get(tool);
     if (item != null) {
       return item;
@@ -90,9 +93,6 @@ public enum TrayService {
 
   private MenuItem convertToMenuItem(ITool tool) {
     List<ITool> children = tool.childrenProperty();
-    if (tool instanceof SeparatorItem) {
-      return new MenuItem("-");
-    }
     MenuItem menuItem = new MenuItem();
     menuItem.setLabel(tool.getText());
     menuItem.addActionListener(e -> tool.onClick());
@@ -113,6 +113,7 @@ public enum TrayService {
             int index = getIndex(parent, menuItem);
             parent.remove(index);
             parent.insert(menu, index);
+            isItem.set(false);
           }
         }
         // Menu to item
@@ -122,17 +123,19 @@ public enum TrayService {
             int index = getIndex(parent, menu);
             parent.remove(index);
             parent.insert(menuItem, index);
+            isItem.set(true);
           }
         }
         if (c.wasPermutated()) {
         } else if (c.wasUpdated()) {
-        } else {
+        } else if (c.wasRemoved()) {
           for (ITool remitem : c.getRemoved()) {
             MenuItem removed = menuMap.remove(remitem);
             if (removed != null) {
               menu.remove(removed);
             }
           }
+        } else if (c.wasAdded()) {
           for (ITool additem : c.getAddedSubList()) {
             MenuItem item = toMenuItem(additem);
             menu.add(item);
