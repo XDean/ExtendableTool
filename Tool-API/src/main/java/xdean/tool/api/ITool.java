@@ -13,7 +13,7 @@ import javafx.beans.property.StringProperty;
  * 2. icon<br>
  * 3. children<br>
  * and an action {@code onClick}
- * 
+ *
  * @author XDean
  *
  */
@@ -36,6 +36,12 @@ public interface ITool {
   default List<ITool> getChildren() {
     ListProperty<ITool> children = childrenProperty();
     return children.subList(0, children.size());
+  }
+
+  ObjectProperty<ITool> parentProperty();
+
+  default ITool getParent() {
+    return parentProperty().get();
   }
 
   void onClick();

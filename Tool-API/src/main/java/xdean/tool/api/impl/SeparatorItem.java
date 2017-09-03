@@ -25,6 +25,11 @@ public enum SeparatorItem implements ITool {
   }
 
   @Override
+  public ObjectProperty<ITool> parentProperty() {
+    return null;
+  }
+
+  @Override
   public void onClick() {
   }
 

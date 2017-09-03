@@ -15,11 +15,13 @@ public abstract class AbstractToolItem implements ITool {
 
   protected StringProperty text;
   protected ObjectProperty<URL> iconUrl;
+  protected ObjectProperty<ITool> parent;
   protected ListProperty<ITool> children;
 
   public AbstractToolItem() {
     text = new SimpleStringProperty("undefined");
     iconUrl = new SimpleObjectProperty<>();
+    parent = new SimpleObjectProperty<>();
     children = new SimpleListProperty<>(FXCollections.observableArrayList());
   }
 
@@ -41,5 +43,10 @@ public abstract class AbstractToolItem implements ITool {
   @Override
   public ListProperty<ITool> childrenProperty() {
     return children;
+  }
+
+  @Override
+  public ObjectProperty<ITool> parentProperty() {
+    return parent;
   }
 }
