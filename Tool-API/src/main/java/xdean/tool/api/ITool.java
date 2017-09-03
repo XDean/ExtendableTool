@@ -38,6 +38,25 @@ public interface ITool {
     return children.subList(0, children.size());
   }
 
+  default void addChild(ITool tool) {
+    tool.removeFromParent();
+    this.childrenProperty().add(tool);
+    tool.parentProperty().set(this);
+  }
+
+  default boolean removeChild(ITool tool) {
+    if (childrenProperty().remove(tool)) {
+      tool.parentProperty().set(null);
+      return true;
+    }
+    return false;
+  }
+
+  default boolean removeFromParent() {
+    ITool parent = parentProperty().get();
+    return parent != null && parent.removeChild(this);
+  }
+
   ObjectProperty<ITool> parentProperty();
 
   default ITool getParent() {
