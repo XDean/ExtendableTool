@@ -8,10 +8,11 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- * Tool item, it has 3 properties<br>
+ * Tool item, it has 4 properties<br>
  * 1. text<br>
  * 2. icon<br>
  * 3. children<br>
+ * 4. parent<br>
  * and an action {@code onClick}
  *
  * @author XDean

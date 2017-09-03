@@ -110,7 +110,7 @@ public class ToolUtil {
         .map(func)
         .concatWith(Observable.just(tool))
         .scan((a, b) -> {
-          a.childrenProperty().add(b);
+          a.addChild(b);
           return b;
         })
         .toList()

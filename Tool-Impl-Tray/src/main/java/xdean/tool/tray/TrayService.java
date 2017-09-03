@@ -75,14 +75,11 @@ public enum TrayService {
   }
 
   private MenuItem toMenuItem(ITool tool) {
-    if (tool instanceof SeparatorItem) {
-      return new MenuItem("-");
-    }
     MenuItem item = menuMap.get(tool);
     if (item != null) {
       return item;
     }
-    item = convertToMenuItem(tool);
+    item = tool instanceof SeparatorItem ? new MenuItem("-") : convertToMenuItem(tool);
     menuMap.put(tool, item);
     return item;
   }

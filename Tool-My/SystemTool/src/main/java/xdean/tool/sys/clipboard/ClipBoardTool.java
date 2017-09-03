@@ -4,6 +4,7 @@ import io.reactivex.internal.schedulers.RxThreadFactory;
 
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,10 +36,10 @@ public class ClipBoardTool extends TextToolItem {
     Toolkit.getDefaultToolkit().getSystemClipboard().addFlavorListener(e -> newContent());
 
     clearItem = new SimpleToolItem("Clear", () -> {
-      childrenProperty().clear();
+      new ArrayList<>(childrenProperty()).forEach(t -> t.removeFromParent());
       stringMap.clear();
-      childrenProperty().add(clearItem);
-      childrenProperty().add(SeparatorItem.INSTANCE);
+      addChild(clearItem);
+      addChild(SeparatorItem.INSTANCE);
       ClipUtil.cleanImage();
       System.gc();
     });
@@ -56,12 +57,12 @@ public class ClipBoardTool extends TextToolItem {
             ClipUtil.getClipText().ifPresent(str -> {
               if (stringMap.containsKey(str)) {
                 ITool item = stringMap.get(str);
-                childrenProperty().remove(item);
-                childrenProperty().add(item);
+                removeChild(item);
+                addChild(item);
               } else {
                 ITool item = new SimpleToolItem(ClipUtil.normalizeTextLength(str),
                     () -> ClipUtil.setClipText(str));
-                childrenProperty().add(item);
+                addChild(item);
                 stringMap.put(str, item);
               }
             }))
@@ -71,11 +72,11 @@ public class ClipBoardTool extends TextToolItem {
               String md5 = ClipUtil.md5(bImage);
               if (imageMap.containsKey(md5)) {
                 ITool item = imageMap.get(md5);
-                childrenProperty().remove(item);
-                childrenProperty().add(item);
+                removeChild(item);
+                addChild(item);
               } else {
                 ITool item = new ClipImage(image, ClipUtil.saveImage(bImage));
-                childrenProperty().add(item);
+                addChild(item);
                 imageMap.put(md5, item);
               }
             })))
