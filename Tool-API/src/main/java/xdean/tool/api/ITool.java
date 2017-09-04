@@ -3,6 +3,7 @@ package xdean.tool.api;
 import java.net.URL;
 import java.util.List;
 
+import xdean.jex.util.task.If;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -39,23 +40,22 @@ public interface ITool {
     return children.subList(0, children.size());
   }
 
-  default void addChild(ITool tool) {
-    tool.removeFromParent();
-    this.childrenProperty().add(tool);
-    tool.parentProperty().set(this);
+  default boolean addChild(ITool tool) {
+    return If.that(tool.removeFromParent())
+        .and(() -> this.childrenProperty().add(tool))
+        .todo(() -> tool.parentProperty().set(this))
+        .condition();
   }
 
   default boolean removeChild(ITool tool) {
-    if (childrenProperty().remove(tool)) {
-      tool.parentProperty().set(null);
-      return true;
-    }
-    return false;
+    return If.that(childrenProperty().remove(tool))
+        .todo(() -> tool.parentProperty().set(null))
+        .condition();
   }
 
   default boolean removeFromParent() {
-    ITool parent = parentProperty().get();
-    return parent != null && parent.removeChild(this);
+    ITool parent = getParent();
+    return parent == null || parent.removeChild(this);
   }
 
   ObjectProperty<ITool> parentProperty();
