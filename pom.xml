@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<xdean.jex.version>0.0.4-SNAPSHOT</xdean.jex.version>
+		<xdean.jex.version>master-SNAPSHOT</xdean.jex.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<rootdir>${session.executionRootDirectory}/</rootdir>
 		<resourceFolder>src/main/resources</resourceFolder>
@@ -17,11 +17,27 @@
 		<tool.extensionpath>${user.home}/.xdean/tool/extension</tool.extensionpath>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.github.XDean</groupId>
+				<artifactId>Java-EX</artifactId>
+				<version>${xdean.jex.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
-			<groupId>xdean</groupId>
+			<groupId>com.github.XDean</groupId>
 			<artifactId>Java-EX</artifactId>
-			<version>${xdean.jex.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
