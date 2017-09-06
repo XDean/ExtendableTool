@@ -8,11 +8,10 @@
 		<version>0.0.2-SNAPSHOT</version>
 	</parent>
 	<dependencies>
-		<!-- https://github.com/WenzheLiu/filewatcher -->
 		<dependency>
-			<groupId>org.wenzhe</groupId>
+			<groupId>com.github.XDean</groupId>
 			<artifactId>filewatcher</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>8cdcb5415a</version>
 		</dependency>
 		<dependency>
 			<groupId>xdean</groupId>
