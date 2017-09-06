@@ -1,5 +1,7 @@
 package xdean.tool.tray;
 
+import static xdean.jex.util.lang.ExceptionUtil.*;
+
 import java.awt.AWTException;
 import java.awt.Menu;
 import java.awt.MenuItem;
@@ -7,6 +9,9 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +20,13 @@ import javafx.collections.ListChangeListener;
 import sun.awt.AWTAccessor;
 import xdean.jex.extra.Wrapper;
 import xdean.jex.util.collection.MapUtil;
+import xdean.jex.util.log.Logable;
 import xdean.tool.api.ITool;
 import xdean.tool.api.ToolUtil;
 import xdean.tool.api.impl.SeparatorItem;
 import xdean.tool.api.impl.TextToolItem;
 
-public enum TrayService {
+public enum TrayService implements Logable {
 
   INSTANCE;
 
@@ -37,7 +43,22 @@ public enum TrayService {
     pathMap = new HashMap<>();
   }
 
+  private void initIcon() {
+    Path DEFAULT_ICON = uncatch(() -> Paths.get(getClass().getResource("/default_icon.png").toURI()));
+    Path path = Paths.get(Context.ICON_PATH);
+    if (DEFAULT_ICON == null) {
+      log().error("Default icon not found.");
+      return;
+    }
+    if (Files.notExists(path)) {
+      if (Files.exists(DEFAULT_ICON)) {
+        uncheck(() -> Files.copy(DEFAULT_ICON, path));
+      }
+    }
+  }
+
   public void start() throws AWTException {
+    initIcon();
     tray = new TrayIcon(Toolkit.getDefaultToolkit().getImage(Context.ICON_PATH));
     rootTool = new TextToolItem("");
     rootMenu = new PopupMenu();
