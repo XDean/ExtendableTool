@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<xdean.jex.version>master-SNAPSHOT</xdean.jex.version>
+		<xdean.jex.version>0.0.4-SNAPSHOT</xdean.jex.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<rootdir>${session.executionRootDirectory}/</rootdir>
 		<resourceFolder>src/main/resources</resourceFolder>
