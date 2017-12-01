@@ -15,6 +15,10 @@
 		<!-- </dependency> -->
 		<dependency>
 			<groupId>com.github.XDean</groupId>
+			<artifactId>JavaFX-EX</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.XDean</groupId>
 			<artifactId>tool.api</artifactId>
 			<version>${project.version}</version>
 		</dependency>

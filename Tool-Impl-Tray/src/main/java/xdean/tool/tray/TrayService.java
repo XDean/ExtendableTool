@@ -9,6 +9,7 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
 import sun.awt.AWTAccessor;
 import xdean.jex.extra.Wrapper;
@@ -30,17 +34,21 @@ public enum TrayService implements Logable {
 
   INSTANCE;
 
+  private static final String TITLE = "Tools";
+
   TrayIcon tray;
   SystemTray systemTray;
   PopupMenu rootMenu;
   ITool rootTool;
   Map<ITool, MenuItem> menuMap;
   Map<String, ITool> pathMap;
+  StringProperty tooltip;
 
   private TrayService() {
     systemTray = SystemTray.getSystemTray();
     menuMap = new HashMap<>();
     pathMap = new HashMap<>();
+    tooltip = new SimpleStringProperty();
   }
 
   private void initIcon() {
@@ -58,8 +66,15 @@ public enum TrayService implements Logable {
   }
 
   public void start() throws AWTException {
+    if (tray != null) {
+      throw new Error("Can't start twice!");
+    }
     initIcon();
     tray = new TrayIcon(Toolkit.getDefaultToolkit().getImage(Context.ICON_PATH));
+    JavaFxObservable.changesOf(tooltip)
+        .observeOn(Util.awt())
+        .forEach(c -> tray.setToolTip(c.getNewVal()));
+    setToolTip(TITLE);
     rootTool = new TextToolItem("");
     rootMenu = new PopupMenu();
     menuMap.put(rootTool, rootMenu);
@@ -79,6 +94,22 @@ public enum TrayService implements Logable {
       tray = null;
       rootMenu = null;
     }
+  }
+
+  public void setToolTip(String text) {
+    tooltip.set(text);
+  }
+
+  public void load(Path dir) throws IOException {
+    setToolTip("loading...");
+    if (Files.exists(dir) && Files.isDirectory(dir)) {
+      Files.newDirectoryStream(dir).forEach(path -> {
+        if (!Files.isDirectory(path)) {
+          TrayService.INSTANCE.addAll(ToolLoader.INSTANCE.getTools(path));
+        }
+      });
+    }
+    setToolTip(TITLE);
   }
 
   public void add(ITool tool) {
