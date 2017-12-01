@@ -2,10 +2,10 @@ package xdean.tool.api;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
-import java.util.function.Function;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
+import io.reactivex.functions.Function;
 import xdean.jex.extra.Pair;
 import xdean.jex.extra.rx2.nullable.RxNullable;
 import xdean.jex.util.string.StringUtil;
@@ -31,7 +31,8 @@ public class ToolUtil {
         // class
         Observable.just(clz)
             .filter(c -> ITool.class.isAssignableFrom(c))
-            .concatMap(c -> RxNullable.fromArray(c.newInstance()).onNullDrop().observable().cast(ITool.class))
+            .to(safeMap(Class::newInstance))
+            .cast(ITool.class)
             .map(t -> If.<ITool> that(clz.getDeclaringClass() != null)
                 .and(() -> clzTool.parent() == defaultTool().parent())
                 .tobe(new ToolWithAnno(t, parent(clzTool, clz.getDeclaringClass())))
@@ -44,7 +45,7 @@ public class ToolUtil {
                 .filter(f -> f.getAnnotation(Tool.class) != null)
                 .filter(f -> IToolGetter.class.isAssignableFrom(f.getType()))
                 .concatMap(field -> Observable.just(field)
-                    .map(f -> f.get(null))
+                    .to(safeMap(f -> f.get(null)))
                     .cast(IToolGetter.class)
                     .map(IToolGetter::get)
                     .concatMap(t -> Observable.just(field)
@@ -57,13 +58,20 @@ public class ToolUtil {
                 .filter(m -> m.getParameterCount() == 0)
                 .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
                 .concatMap(method -> Observable.just(method)
-                    .map(m -> m.invoke(null, new Object[] {}))
+                    .to(safeMap(m -> m.invoke(null)))
                     .cast(ITool.class)
                     .concatMap(t -> Observable.just(method)
                         .map(f -> f.getAnnotation(Tool.class))
                         .compose(defaultParent(t, clz)))))
             .filter(p -> p.getLeft() != null && p.getRight() != null)
             .map(p -> new ToolWithAnno(p.getLeft(), p.getRight())));
+  }
+
+  private static <T, R> Function<Observable<T>, Observable<R>> safeMap(Function<T, R> function) {
+    return o -> o.concatMap(t -> RxNullable.fromCallable(() -> function.apply(t))
+        .onNullDrop()
+        .observable()
+        .onErrorResumeNext(Observable.empty()));
   }
 
   private static ObservableTransformer<Tool, Pair<ITool, Tool>> defaultParent(ITool tool, Class<?> loadingClass) {

@@ -7,13 +7,19 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<rootdir>${session.executionRootDirectory}/</rootdir>
 		<resourceFolder>src/main/resources</resourceFolder>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
 		<assembly.dir>${resourceFolder}/assembly</assembly.dir>
 		<assembly.pack>${rootdir}/${assembly.dir}/pack-dependency.xml</assembly.pack>
 		<assembly.unpack>${rootdir}/${assembly.dir}/unpack-dependency.xml</assembly.unpack>
-		<tool.extensionpath>${user.home}/.xdean/tool/extension</tool.extensionpath>
+		<assembly.file>${assembly.pack}</assembly.file>
+		<tool.assembly.path>${project.build.directory}</tool.assembly.path>
+    <tool.extension.path>${user.home}/.xdean/tool/extension</tool.extension.path>
 	</properties>
 
 	<repositories>
@@ -53,34 +59,33 @@
 		<module>Tool-My</module>
 	</modules>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<descriptors>
-						<descriptor>${assembly.pack}</descriptor>
-					</descriptors>
-					<finalName>${project.groupId}.${project.artifactId}</finalName>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+
+
+	<profiles>
+		<profile>
+			<id>install-plugins</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<descriptors>
+								<descriptor>${assembly.file}</descriptor>
+							</descriptors>
+							<outputDirectory>${tool.assembly.path}</outputDirectory>
+							<finalName>${project.groupId}.${project.artifactId}</finalName>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
