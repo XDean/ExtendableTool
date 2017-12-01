@@ -4,21 +4,14 @@ import java.awt.AWTException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.wenzhe.filewatcher.FileWatcherExecutor;
-import org.wenzhe.filewatcher.dsl.FileType;
-import org.wenzhe.filewatcher.dsl.FileWatcherDslContext;
 
 import xdean.tool.api.Context;
-
-import com.google.common.annotations.Beta;
 
 public class ToolMain {
   public static void main(String[] args) throws AWTException, IOException {
     TrayService.INSTANCE.start();
     loadTools(Context.EXTENSION_PATH);
-    watchFile(Context.EXTENSION_PATH);
+//    watchFile(Context.EXTENSION_PATH);
   }
 
   private static void loadTools(Path dir) throws IOException {
@@ -36,7 +29,7 @@ public class ToolMain {
    *
    * @param dir
    */
-  @Beta
+  /* @Beta
   private static void watchFile(Path dir) {
     FileWatcherDslContext context = new FileWatcherDslContext();
     context.start(false)
@@ -47,5 +40,5 @@ public class ToolMain {
             .getTools(Paths.get(file))
             .forEach(TrayService.INSTANCE::add));
     FileWatcherExecutor.getInstance().run(context).subscribe();
-  }
+  }*/
 }

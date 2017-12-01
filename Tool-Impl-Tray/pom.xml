@@ -8,11 +8,11 @@
 		<version>0.0.2-SNAPSHOT</version>
 	</parent>
 	<dependencies>
-		<dependency>
-			<groupId>com.github.XDean</groupId>
-			<artifactId>filewatcher</artifactId>
-			<version>8cdcb5415a</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>com.github.XDean</groupId> -->
+		<!-- <artifactId>filewatcher</artifactId> -->
+		<!-- <version>8cdcb5415a</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>xdean</groupId>
 			<artifactId>tool.api</artifactId>

@@ -16,11 +16,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarEntry;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
-import rx.Observable;
+import io.reactivex.Observable;
 import xdean.jex.util.file.FileUtil;
+import xdean.jex.util.log.Logable;
 import xdean.tool.api.Context;
 import xdean.tool.api.ITool;
 import xdean.tool.api.IToolResourceLoader;
@@ -33,25 +31,23 @@ import xdean.tool.api.ToolUtil;
  * @author XDean
  *
  */
-@Slf4j
-public class ToolJarLoader implements IToolResourceLoader {
+public class ToolJarLoader implements IToolResourceLoader, Logable {
 
   @Override
   public List<ITool> getTools(Path path) {
     try {
       return new ToolJarUrl(path).getTools();
     } catch (IOException e) {
-      log.error("Illegal url", path, e);
+      log().error("Illegal url", path, e);
     }
     return Collections.emptyList();
   }
 
-  @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-  private static class ToolJarUrl {
-    URL sourceUrl;
-    Path sourcePath;
-    Path libPath;
-    ArrayList<JarEntry> jarEntries;
+  private static class ToolJarUrl implements Logable{
+    private final URL sourceUrl;
+    private final Path sourcePath;
+    private final Path libPath;
+    private final ArrayList<JarEntry> jarEntries;
 
     public ToolJarUrl(Path path) throws IOException {
       URL sourceUrl = path.toAbsolutePath().toUri().toURL();
@@ -71,7 +67,7 @@ public class ToolJarLoader implements IToolResourceLoader {
     public List<ITool> getTools() throws IOException {
       List<ITool> toolList = new ArrayList<>();
       URLClassLoader classLoader = getClassLoader();
-      Observable.from(jarEntries)
+      Observable.fromIterable(jarEntries)
           .map(JarEntry::getName)
           .filter(n -> n.endsWith(".class"))
           .flatMap(name -> loadClass(name, classLoader))
@@ -122,7 +118,7 @@ public class ToolJarLoader implements IToolResourceLoader {
             list.add(tempPath.toUri().toURL());
           }));
       classLoader.close();
-      log.debug("load {} with libirary: {}", sourcePath, list);
+      log().debug("load {} with libirary: {}", sourcePath, list);
       URL[] arr = new URL[list.size()];
       URL[] urls = list.toArray(arr);
       return URLClassLoader.newInstance(urls, getClass().getClassLoader());
@@ -137,7 +133,7 @@ public class ToolJarLoader implements IToolResourceLoader {
         Class<?> clz = classLoader.loadClass(clzName);
         return ToolUtil.loadTool(clz);
       } catch (Throwable e) {
-        log.error("load class fail", clzName, e);
+        log().error("load class fail", clzName, e);
       }
       return Observable.empty();
     }
