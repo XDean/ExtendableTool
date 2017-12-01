@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>tool.screenshot</artifactId>
 	<parent>
-		<groupId>xdean</groupId>
+		<groupId>com.github.XDean</groupId>
 		<artifactId>tool.my</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
 	</parent>

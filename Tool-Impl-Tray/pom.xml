@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>tool.impl.tray</artifactId>
 	<parent>
-		<groupId>xdean</groupId>
+		<groupId>com.github.XDean</groupId>
 		<artifactId>tool</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
 	</parent>
@@ -14,7 +14,7 @@
 		<!-- <version>8cdcb5415a</version> -->
 		<!-- </dependency> -->
 		<dependency>
-			<groupId>xdean</groupId>
+			<groupId>com.github.XDean</groupId>
 			<artifactId>tool.api</artifactId>
 			<version>${project.version}</version>
 		</dependency>

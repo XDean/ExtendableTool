@@ -4,7 +4,7 @@
 	<artifactId>tool.my</artifactId>
 	<packaging>pom</packaging>
 	<parent>
-		<groupId>xdean</groupId>
+		<groupId>com.github.XDean</groupId>
 		<artifactId>tool</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
 	</parent>
@@ -19,7 +19,7 @@
       <artifactId>JavaFX-EX</artifactId>
     </dependency>
 		<dependency>
-			<groupId>xdean</groupId>
+			<groupId>com.github.XDean</groupId>
 			<artifactId>tool.api</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
