@@ -3,6 +3,8 @@ package xdean.screenShot;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import javax.imageio.ImageIO;
+
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -19,9 +21,6 @@ import javafx.scene.shape.Shape;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
-import javax.imageio.ImageIO;
-
 import xdean.jex.util.log.Logable;
 import xdean.jex.util.task.If;
 import xdean.jfx.ex.support.DragSupport;

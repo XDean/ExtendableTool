@@ -1,7 +1,14 @@
 package xdean.screenShot;
 
+import static xdean.jex.util.cache.CacheUtil.cache;
+import static xdean.jex.util.lang.ExceptionUtil.uncheck;
+
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
+
+import com.melloware.jintellitype.HotkeyListener;
+import com.melloware.jintellitype.JIntellitype;
+import com.sun.javafx.application.PlatformImpl;
 
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -10,24 +17,17 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.Screen;
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
-import xdean.jex.config.Config;
+import xdean.tool.api.Config;
 
-import com.melloware.jintellitype.HotkeyListener;
-import com.melloware.jintellitype.JIntellitype;
-import com.sun.javafx.application.PlatformImpl;
-
-@UtilityClass
 public class ScreenShot {
-  private final String KEY = "ScreenShotKey";
-  private final String DEFAULT_KEY = "ALT+SHIFT+A";
-  private final HotkeyListener listener = e -> {
+  private static final String KEY = "ScreenShotKey";
+  private static final String DEFAULT_KEY = "ALT+SHIFT+A";
+  private static final HotkeyListener listener = e -> {
     if (e == 0) {
       show();
     }
   };
-  private/* final */ScreenShotStage stage;
+  private static /* final */ScreenShotStage stage;
   static {
     PlatformImpl.startup(() -> {
       PlatformImpl.setTaskbarApplication(false);
@@ -36,7 +36,7 @@ public class ScreenShot {
     Config.setIfAbsent(KEY, DEFAULT_KEY);
   }
 
-  public void main(String[] args) {
+  public static void main(String[] args) {
     // register();
     Platform.setImplicitExit(true);
     show();
@@ -46,7 +46,7 @@ public class ScreenShot {
     });
   }
 
-  public void register(boolean b) {
+  public static void register(boolean b) {
     if (b) {
       register();
     } else {
@@ -54,19 +54,19 @@ public class ScreenShot {
     }
   }
 
-  public void register() {
+  public static void register() {
     JIntellitype jni = JIntellitype.getInstance();
     jni.registerHotKey(0, Config.getProperty(KEY).orElse(DEFAULT_KEY));
     jni.addHotKeyListener(listener);
   }
 
-  public void unregister() {
+  public static void unregister() {
     JIntellitype jni = JIntellitype.getInstance();
     jni.unregisterHotKey(0);
     jni.removeHotKeyListener(listener);
   }
 
-  public void show() {
+  public static void show() {
     Platform.runLater(() -> {
       initStage();
       stage.reshot();
@@ -74,23 +74,22 @@ public class ScreenShot {
     });
   }
 
-  private void initStage() {
+  private static void initStage() {
     if (stage == null) {
       stage = new ScreenShotStage();
       ScreenShotToolBar.enableSave(stage);
     }
   }
 
-  @SneakyThrows
-  Image getScreenShot() {
+  static Image getScreenShot() {
     int width = (int) Screen.getPrimary().getBounds().getWidth();
     int height = (int) Screen.getPrimary().getBounds().getHeight();
-    Robot robot = new Robot();
-    BufferedImage swingImage = robot.createScreenCapture(new java.awt.Rectangle(width, height));
+    BufferedImage swingImage = cache(ScreenShot.class, Robot.class, () -> uncheck(() -> new Robot()))
+        .createScreenCapture(new java.awt.Rectangle(width, height));
     return SwingFXUtils.toFXImage(swingImage, new WritableImage(width, height));
   }
 
-  void putIntoClipBoard(Image image) {
+  static void putIntoClipBoard(Image image) {
     Clipboard clipboard = Clipboard.getSystemClipboard();
     ClipboardContent content = new ClipboardContent();
     content.putImage(image);

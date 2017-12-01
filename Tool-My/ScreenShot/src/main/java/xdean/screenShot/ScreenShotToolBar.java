@@ -11,17 +11,16 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.imageio.ImageIO;
+
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-
-import javax.imageio.ImageIO;
-
-import xdean.jex.config.Config;
 import xdean.jex.util.task.If;
+import xdean.tool.api.Config;
 
 public class ScreenShotToolBar {
 
