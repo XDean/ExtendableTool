@@ -1,6 +1,7 @@
 package xdean.tool.sys.clipboard;
 
 import static xdean.jex.util.function.FunctionAdapter.supplierToRunnable;
+import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -15,25 +16,21 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import javax.imageio.ImageIO;
+
+import com.sun.javafx.application.PlatformImpl;
+
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-
-import javax.imageio.ImageIO;
-
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import xdean.jex.util.security.SecurityUtil;
 import xdean.tool.api.Context;
 
-import com.sun.javafx.application.PlatformImpl;
-
-@UtilityClass
 public class ClipUtil {
 
-  private final Path TEMP_PATH = Context.TEMP_PATH.resolve("clip");
-  private Clipboard CLIPBOARD;
+  private static final Path TEMP_PATH = Context.TEMP_PATH.resolve("clip");
+  private static Clipboard CLIPBOARD;
   static {
     try {
       if (Files.notExists(TEMP_PATH)) {
@@ -45,13 +42,13 @@ public class ClipUtil {
     PlatformImpl.startup(() -> CLIPBOARD = Clipboard.getSystemClipboard());
   }
 
-  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+  private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 
-  public Optional<String> getClipText() {
+  public static Optional<String> getClipText() {
     return getFX(() -> Optional.ofNullable(CLIPBOARD.getString()));
   }
 
-  public void setClipText(String string) {
+  public static void setClipText(String string) {
     runFX(() -> {
       ClipboardContent content = new ClipboardContent();
       content.putString(string);
@@ -59,11 +56,11 @@ public class ClipUtil {
     });
   }
 
-  public Optional<Image> getClipImage() {
+  public static Optional<Image> getClipImage() {
     return getFX(() -> Optional.ofNullable(CLIPBOARD.getImage()));
   }
 
-  public void setClipImage(final Image image) {
+  public static void setClipImage(final Image image) {
     runFX(() -> {
       ClipboardContent content = new ClipboardContent();
       content.putImage(image);
@@ -71,19 +68,19 @@ public class ClipUtil {
     });
   }
 
-  public String saveImage(BufferedImage image) throws IOException {
+  public static String saveImage(BufferedImage image) throws IOException {
     String name = normalizeTextLength(String.format("Image%s.png", dateFormat.format(new Date())));
     ImageIO.write(image, "png", new File(TEMP_PATH.toString(), name));
     image.flush();
     return name;
   }
 
-  public Image loadImage(String name) throws IOException {
+  public static Image loadImage(String name) throws IOException {
     BufferedImage swingImage = ImageIO.read(new File(TEMP_PATH.toString(), name));
     return SwingFXUtils.toFXImage(swingImage, null);
   }
 
-  public void cleanImage() {
+  public static void cleanImage() {
     try {
       Files.newDirectoryStream(TEMP_PATH).forEach(path -> {
         if (path.getFileName().toString().matches("Image.*\\.jpg")) {
@@ -99,30 +96,31 @@ public class ClipUtil {
     }
   }
 
-  public String normalizeTextLength(String str) {
+  public static String normalizeTextLength(String str) {
     if (str.length() < 30) {
       return str;
     }
     return str.substring(0, 25) + "...";
   }
 
-  public BufferedImage toBufferedImage(Image image) {
+  public static BufferedImage toBufferedImage(Image image) {
     return SwingFXUtils.fromFXImage(image, null);
   }
 
-  @SneakyThrows(IOException.class)
-  public String md5(BufferedImage image) {
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    ImageIO.write(image, "png", os);
-    InputStream fis = new ByteArrayInputStream(os.toByteArray());
-    return SecurityUtil.md5(fis);
+  public static String md5(BufferedImage image) {
+    return uncheck(() -> {
+      ByteArrayOutputStream os = new ByteArrayOutputStream();
+      ImageIO.write(image, "png", os);
+      InputStream fis = new ByteArrayInputStream(os.toByteArray());
+      return SecurityUtil.md5(fis);
+    });
   }
 
-  private <T> T getFX(Supplier<T> sup) {
+  private static <T> T getFX(Supplier<T> sup) {
     return supplierToRunnable(sup, PlatformImpl::runAndWait);
   }
 
-  private void runFX(Runnable r) {
+  private static void runFX(Runnable r) {
     PlatformImpl.runAndWait(r);
   }
 }

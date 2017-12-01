@@ -1,6 +1,7 @@
 package xdean.tool.sys.other;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
+import static xdean.jex.util.log.LogUtil.log;
 import static xdean.jex.util.string.StringUtil.*;
 import static xdean.jex.util.task.TaskUtil.async;
 
@@ -13,9 +14,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Stream;
 
-import lombok.extern.slf4j.Slf4j;
-import xdean.jex.config.Config;
 import xdean.jex.util.task.If;
+import xdean.tool.api.Config;
 import xdean.tool.api.Context;
 import xdean.tool.api.ITool;
 import xdean.tool.api.Tool;
@@ -30,9 +30,8 @@ import xdean.tool.sys.SystemTools;
  * @author XDean
  *
  */
-@Slf4j
 @Tool(parent = SystemTools.class, path = "Custom")
-public class CustomCommandTool extends TextToolItem {
+public class CustomCommandTool extends TextToolItem{
 
   private static final Path CUSTOM_PATH = Paths.get(Context.HOME_PATH, Config.getProperty("Custom Command Tool",
       "Custom Command Tool Setting.properties"));
@@ -58,7 +57,7 @@ public class CustomCommandTool extends TextToolItem {
     uncheck(() -> Files.readAllLines(CUSTOM_PATH)).stream()
         .map(s -> s.split("=", 2))
         .filter(s -> If.that(s.length == 2)
-            .ordo(() -> log.warn("Custom command should be NAME=COMMAND. {} is not right.", s[0]))
+            .ordo(() -> log().warn("Custom command should be NAME=COMMAND. {} is not right.", s[0]))
             .condition())
         .forEach(s -> add(s[0].trim(), "cmd /c " + s[1].trim()));
     removeFromParent();
@@ -78,15 +77,15 @@ public class CustomCommandTool extends TextToolItem {
     if (placeHolder.hasNext() == false) {
       throw new IllegalArgumentException("Can't handle the command");
     }
-    log.debug("init is : " + command);
+    log().debug("init is : " + command);
     // replace \\
     String backslashPh = String.valueOf(placeHolder.next());
     command = command.replace("\\\\", backslashPh);
-    log.debug("after \\\\: " + command);
+    log().debug("after \\\\: " + command);
     // replace \"
     String quotePh = String.valueOf(placeHolder.next());
     command = command.replace("\\\"", quotePh);
-    log.debug("after \\\": " + command);
+    log().debug("after \\\": " + command);
     // replace content with quote
     String inQuotePh = String.valueOf(placeHolder.next());
     Queue<String> inQuotes = new LinkedList<>();
@@ -95,7 +94,7 @@ public class CustomCommandTool extends TextToolItem {
       inQuotes.add(command.substring(indexes[0], indexes[1]));
       command = replacePart(command, indexes[0], indexes[1], inQuotePh);
     }
-    log.debug("after \"\": " + command);
+    log().debug("after \"\": " + command);
     return Stream.of(command.split(" "))
         .map(s -> {
           int index;

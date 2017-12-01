@@ -14,16 +14,15 @@
 		<module>SystemTool</module>
 	</modules>
 	<dependencies>
+    <dependency>
+      <groupId>com.github.XDean</groupId>
+      <artifactId>JavaFX-EX</artifactId>
+    </dependency>
 		<dependency>
 			<groupId>xdean</groupId>
 			<artifactId>tool.api</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.github.XDean</groupId>
-			<artifactId>JavaFX-EX</artifactId>
-			<version>master-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>

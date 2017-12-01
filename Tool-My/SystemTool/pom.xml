@@ -7,28 +7,4 @@
 		<artifactId>tool.my</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
 	</parent>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>io.reactivex</groupId>
-				<artifactId>rxjava</artifactId>
-				<version>1.2.7</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
-	<dependencies>
-		<dependency>
-			<groupId>io.reactivex</groupId>
-			<artifactId>rxjava-string</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 </project>
