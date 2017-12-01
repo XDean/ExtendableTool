@@ -37,7 +37,7 @@ public class ToolUtilTest {
 
   @Test
   public void testToolPath() {
-    ITool a = getWrappedTool(C.class).toSingle().toBlocking().value();
+    ITool a = getWrappedTool(C.class).blockingSingle();
     ITool b = a.getChildren().get(0);
     ITool c = b.getChildren().get(0);
     assertInstanceOf(c, C.class);

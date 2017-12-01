@@ -4,17 +4,14 @@ import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
+import java.util.function.Function;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.experimental.Delegate;
-import lombok.experimental.UtilityClass;
-import rx.Observable;
-import rx.Observable.Transformer;
-import rx.functions.Func1;
+import io.reactivex.Observable;
+import io.reactivex.ObservableTransformer;
 import xdean.jex.extra.Pair;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
+import xdean.tool.api.impl.DelegateTool;
 import xdean.tool.api.impl.TextToolItem;
 
 public class ToolUtil {
@@ -45,40 +42,34 @@ public class ToolUtil {
                 .result()),
         Observable.<Pair<ITool, Tool>> concat(
             // field
-            Observable.from(clz.getDeclaredFields())
+            Observable.fromArray(clz.getDeclaredFields())
                 .filter(f -> (~f.getModifiers() & (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)) == 0)
-                .flatMap(field ->
-                    Observable.just(field)
-                        .filter(f -> f.getAnnotation(Tool.class) != null)
-                        .filter(f -> IToolGetter.class.isAssignableFrom(f.getType()))
-                        .map(f -> uncatch(() -> f.get(null)))
-                        .cast(IToolGetter.class)
-                        .map(IToolGetter::get)
-                        .flatMap(t -> Observable.just(field)
-                            .map(f -> f.getAnnotation(Tool.class))
-                            .compose(defaultParent(t, clz)))
-                ),
+                .flatMap(field -> Observable.just(field)
+                    .filter(f -> f.getAnnotation(Tool.class) != null)
+                    .filter(f -> IToolGetter.class.isAssignableFrom(f.getType()))
+                    .map(f -> uncatch(() -> f.get(null)))
+                    .cast(IToolGetter.class)
+                    .map(IToolGetter::get)
+                    .flatMap(t -> Observable.just(field)
+                        .map(f -> f.getAnnotation(Tool.class))
+                        .compose(defaultParent(t, clz)))),
             // method
-            Observable.from(clz.getDeclaredMethods())
+            Observable.fromArray(clz.getDeclaredMethods())
                 .filter(m -> ((~m.getModifiers()) & (Modifier.PUBLIC | Modifier.STATIC)) == 0)
-                .flatMap(method ->
-                    Observable.just(method)
-                        .filter(m -> m.getAnnotation(Tool.class) != null)
-                        .filter(m -> m.getParameterCount() == 0)
-                        .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
-                        .map(m -> uncatch(() -> m.invoke(null, new Object[] {})))
-                        .cast(ITool.class)
-                        .flatMap(t -> Observable.just(method)
-                            .map(f -> f.getAnnotation(Tool.class))
-                            .compose(defaultParent(t, clz)))
-                )
-            )
+                .flatMap(method -> Observable.just(method)
+                    .filter(m -> m.getAnnotation(Tool.class) != null)
+                    .filter(m -> m.getParameterCount() == 0)
+                    .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
+                    .map(m -> uncatch(() -> m.invoke(null, new Object[] {})))
+                    .cast(ITool.class)
+                    .flatMap(t -> Observable.just(method)
+                        .map(f -> f.getAnnotation(Tool.class))
+                        .compose(defaultParent(t, clz)))))
             .filter(p -> p.getLeft() != null && p.getRight() != null)
-            .map(p -> new ToolWithAnno(p.getLeft(), p.getRight()))
-        );
+            .map(p -> new ToolWithAnno(p.getLeft(), p.getRight())));
   }
 
-  private static Transformer<Tool, Pair<ITool, Tool>> defaultParent(ITool tool, Class<?> loadingClass) {
+  private static ObservableTransformer<Tool, Pair<ITool, Tool>> defaultParent(ITool tool, Class<?> loadingClass) {
     return o -> o.map(anno -> If.<Tool> that(anno.parent() == defaultTool().parent())
         .tobe(parent(anno, loadingClass))
         .orbe(anno)
@@ -100,14 +91,14 @@ public class ToolUtil {
    * @param func from absolute path to tool
    * @return
    */
-  public static <T extends ITool> ITool wrapTool(ITool tool, Func1<String, ITool> func) {
+  public static <T extends ITool> ITool wrapTool(ITool tool, Function<String, ITool> func) {
     return Observable.just(tool)
         .map(ToolUtil::getToolAnno)
         .map(ToolUtil::getToolPath)
-        .flatMap(p -> Observable.from(p.split("/")))
+        .flatMap(p -> Observable.fromArray(p.split("/")))
         .filter(s -> s.length() > 0)
         .scan((s1, s2) -> String.join("/", s1, s2))
-        .map(func)
+        .map(func::apply)
         .concatWith(Observable.just(tool))
         .scan((a, b) -> {
           a.addChild(b);
@@ -115,8 +106,7 @@ public class ToolUtil {
         })
         .toList()
         .map(l -> l.get(0))
-        .toBlocking()
-        .first();
+        .blockingGet();
   }
 
   public static Tool getToolAnno(ITool tool) {
@@ -178,16 +168,20 @@ public class ToolUtil {
   }
 
   @Tool
-  @UtilityClass
   private static class DefaultTool {
-    Tool defaultTool = DefaultTool.class.getAnnotation(Tool.class);
+    static Tool defaultTool = DefaultTool.class.getAnnotation(Tool.class);
   }
 
-  @AllArgsConstructor
-  private static class ToolWithAnno implements ITool {
-    @Delegate
-    ITool itool;
-    @Getter
+  private static class ToolWithAnno extends DelegateTool {
     Tool anno;
+
+    public ToolWithAnno(ITool tool, Tool anno) {
+      super(tool);
+      this.anno = anno;
+    }
+
+    public Tool getAnno() {
+      return anno;
+    }
   }
 }
