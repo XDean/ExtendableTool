@@ -1,7 +1,5 @@
 package xdean.tool.api;
 
-import static xdean.jex.util.lang.ExceptionUtil.uncatch;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.util.function.Function;
@@ -9,6 +7,7 @@ import java.util.function.Function;
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
 import xdean.jex.extra.Pair;
+import xdean.jex.extra.rx2.nullable.RxNullable;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
 import xdean.tool.api.impl.DelegateTool;
@@ -32,9 +31,7 @@ public class ToolUtil {
         // class
         Observable.just(clz)
             .filter(c -> ITool.class.isAssignableFrom(c))
-            .map(c -> uncatch(() -> c.newInstance()))
-            .cast(ITool.class)
-            .filter(t -> t != null)
+            .concatMap(c -> RxNullable.fromArray(c.newInstance()).onNullDrop().observable().cast(ITool.class))
             .map(t -> If.<ITool> that(clz.getDeclaringClass() != null)
                 .and(() -> clzTool.parent() == defaultTool().parent())
                 .tobe(new ToolWithAnno(t, parent(clzTool, clz.getDeclaringClass())))
@@ -44,25 +41,25 @@ public class ToolUtil {
             // field
             Observable.fromArray(clz.getDeclaredFields())
                 .filter(f -> (~f.getModifiers() & (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)) == 0)
-                .flatMap(field -> Observable.just(field)
-                    .filter(f -> f.getAnnotation(Tool.class) != null)
-                    .filter(f -> IToolGetter.class.isAssignableFrom(f.getType()))
-                    .map(f -> uncatch(() -> f.get(null)))
+                .filter(f -> f.getAnnotation(Tool.class) != null)
+                .filter(f -> IToolGetter.class.isAssignableFrom(f.getType()))
+                .concatMap(field -> Observable.just(field)
+                    .map(f -> f.get(null))
                     .cast(IToolGetter.class)
                     .map(IToolGetter::get)
-                    .flatMap(t -> Observable.just(field)
+                    .concatMap(t -> Observable.just(field)
                         .map(f -> f.getAnnotation(Tool.class))
                         .compose(defaultParent(t, clz)))),
             // method
             Observable.fromArray(clz.getDeclaredMethods())
                 .filter(m -> ((~m.getModifiers()) & (Modifier.PUBLIC | Modifier.STATIC)) == 0)
-                .flatMap(method -> Observable.just(method)
-                    .filter(m -> m.getAnnotation(Tool.class) != null)
-                    .filter(m -> m.getParameterCount() == 0)
-                    .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
-                    .map(m -> uncatch(() -> m.invoke(null, new Object[] {})))
+                .filter(m -> m.getAnnotation(Tool.class) != null)
+                .filter(m -> m.getParameterCount() == 0)
+                .filter(m -> ITool.class.isAssignableFrom(m.getReturnType()))
+                .concatMap(method -> Observable.just(method)
+                    .map(m -> m.invoke(null, new Object[] {}))
                     .cast(ITool.class)
-                    .flatMap(t -> Observable.just(method)
+                    .concatMap(t -> Observable.just(method)
                         .map(f -> f.getAnnotation(Tool.class))
                         .compose(defaultParent(t, clz)))))
             .filter(p -> p.getLeft() != null && p.getRight() != null)

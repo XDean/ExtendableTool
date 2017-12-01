@@ -20,10 +20,11 @@ import javafx.stage.Screen;
 import xdean.tool.api.Config;
 
 public class ScreenShot {
+  private static final int CODE = 0x951107;
   private static final String KEY = "ScreenShotKey";
   private static final String DEFAULT_KEY = "ALT+SHIFT+A";
-  private static final HotkeyListener listener = e -> {
-    if (e == 0) {
+  private static final HotkeyListener LISTENER = e -> {
+    if (e == CODE) {
       show();
     }
   };
@@ -56,14 +57,14 @@ public class ScreenShot {
 
   public static void register() {
     JIntellitype jni = JIntellitype.getInstance();
-    jni.registerHotKey(0, Config.getProperty(KEY).orElse(DEFAULT_KEY));
-    jni.addHotKeyListener(listener);
+    jni.registerHotKey(CODE, Config.getProperty(KEY).orElse(DEFAULT_KEY));
+    jni.addHotKeyListener(LISTENER);
   }
 
   public static void unregister() {
     JIntellitype jni = JIntellitype.getInstance();
-    jni.unregisterHotKey(0);
-    jni.removeHotKeyListener(listener);
+    jni.unregisterHotKey(CODE);
+    jni.removeHotKeyListener(LISTENER);
   }
 
   public static void show() {
