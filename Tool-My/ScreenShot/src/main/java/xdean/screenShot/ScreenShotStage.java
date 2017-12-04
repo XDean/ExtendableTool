@@ -24,6 +24,7 @@ import javafx.stage.StageStyle;
 import xdean.jex.util.log.Logable;
 import xdean.jex.util.task.If;
 import xdean.jfx.ex.support.DragSupport;
+import xdean.jfx.ex.support.ResizeSupport;
 
 public class ScreenShotStage extends Stage implements Logable {
   public static void main(String[] args) {
@@ -82,6 +83,7 @@ public class ScreenShotStage extends Stage implements Logable {
 
   private void initEvent() {
     DragSupport.bind(targetRectangle).doOnDrag(this::updateMask);
+    ResizeSupport.bind(targetRectangle, targetRectangle.widthProperty(), targetRectangle.heightProperty());
 
     scene.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
       startPos[0] = e.getScreenX();
