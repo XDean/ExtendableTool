@@ -65,7 +65,6 @@ public class ScreenShotToolBar {
     fc.getExtensionFilters().add(bmp);
     fc.setTitle("Save");
     return stage.addToolButton("save", s -> {
-      s.setAlwaysOnTop(false);
       fc.setInitialFileName("ScreenShot" + df.format(new Date()));
       fc.setInitialDirectory(
           Config.getProperty(KEY_SCREEN_SHOT__SAVE)
@@ -73,27 +72,26 @@ public class ScreenShotToolBar {
               .filter(File::exists)
               .orElse(DEFAULT_SAVE_DIR));
       BufferedImage screenShot = SwingFXUtils.fromFXImage(s.getScreenShot(), null);
-      Optional.ofNullable(fc.showSaveDialog(s.getOwner()))
-          .ifPresent(file -> throwToReturn(
-              () -> {
-                Config.setProperty(KEY_SCREEN_SHOT__SAVE, file.getParentFile().getAbsolutePath());
-                ExtensionFilter filter = fc.getSelectedExtensionFilter();
-                BufferedImage image = null;
-                if (filter == jpg) {
-                  image = toJPG(screenShot);
-                } else if (filter == bmp) {
-                  image = toBMP(screenShot);
-                } else if (filter == png) {
-                  image = toPNG(screenShot);
-                }
-                return ImageIO.write(image, filter.getDescription(), file);
-              })
-                  .ifRight(e -> s.log().debug("write screenshot fail. Retry.", e))
-                  .unify(f -> If.that(f), e -> If.that(false))
-                  .todo(() -> s.reshot())
-                  .todo(() -> s.hide())
-                  .ordo(() -> new Alert(AlertType.INFORMATION, "Save failed!", ButtonType.OK).showAndWait()));
-      s.setAlwaysOnTop(true);
+      Optional.ofNullable(fc.showSaveDialog(s))
+          .ifPresent(file -> throwToReturn(() -> {
+            Config.setProperty(KEY_SCREEN_SHOT__SAVE, file.getParentFile().getAbsolutePath());
+            ExtensionFilter filter = fc.getSelectedExtensionFilter();
+            BufferedImage image = null;
+            if (filter == jpg) {
+              image = toJPG(screenShot);
+            } else if (filter == bmp) {
+              image = toBMP(screenShot);
+            } else if (filter == png) {
+              image = toPNG(screenShot);
+            }
+            return ImageIO.write(image, filter.getDescription(), file);
+          })
+              .ifRight(e -> s.log().debug("write screenshot fail. Retry.", e))
+              .unify(f -> If.that(f), e -> If.that(false))
+              .todo(() -> s.reshot())
+              .todo(() -> s.hide())
+              .ordo(() -> new Alert(AlertType.INFORMATION, "Save failed!", ButtonType.OK).showAndWait()));
+      s.toFront();
     });
   }
 
