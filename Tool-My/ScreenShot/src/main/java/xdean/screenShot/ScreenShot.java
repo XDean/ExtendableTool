@@ -106,7 +106,8 @@ public class ScreenShot {
   private static void initStage() {
     if (stage == null) {
       stage = new ScreenShotStage();
-      ScreenShotToolBar.enableSave(stage);
+      ScreenShotToolBar.pixelSize(stage);
+      ScreenShotToolBar.saveButton(stage);
     }
   }
 

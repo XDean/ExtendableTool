@@ -1,11 +1,12 @@
 package xdean.screenShot;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
 
-import javax.imageio.ImageIO;
-
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -24,20 +25,18 @@ import javafx.stage.StageStyle;
 import xdean.jex.util.log.Logable;
 import xdean.jex.util.task.If;
 import xdean.jfx.ex.support.DragSupport;
+import xdean.jfx.ex.support.DragSupport.DragConfig;
 import xdean.jfx.ex.support.ResizeSupport;
+import xdean.jfx.ex.support.ResizeSupport.ResizeConfig;
 
 public class ScreenShotStage extends Stage implements Logable {
-  public static void main(String[] args) {
-    System.out.println(Arrays.toString(ImageIO.getWriterFormatNames()));
-  }
-
-  private Rectangle targetRectangle;
-  private Rectangle maskRectangle;
-  private ImageView mainImageView;
-  private Group rootGroup;
-  private Scene scene;
+  Rectangle targetRectangle;
+  Rectangle maskRectangle;
+  ImageView mainImageView;
+  Group rootGroup;
+  Scene scene;
+  HBox toolGroup;
   double[] startPos = new double[2];
-  private HBox toolGroup;
 
   public ScreenShotStage() {
     super(StageStyle.TRANSPARENT);
@@ -63,6 +62,11 @@ public class ScreenShotStage extends Stage implements Logable {
     mainImageView.setImage(ScreenShot.getScreenShot());
   }
 
+  public ScreenShotStage addTool(Node node) {
+    toolGroup.getChildren().add(node);
+    return this;
+  }
+
   public ScreenShotStage addToolButton(String text, Consumer<ScreenShotStage> onClick) {
     Button button = new Button();
     button.setText(text);
@@ -82,9 +86,15 @@ public class ScreenShotStage extends Stage implements Logable {
   }
 
   private void initEvent() {
-    DragSupport.bind(targetRectangle).doOnDrag(this::updateMask);
-    ResizeSupport.bind(targetRectangle, targetRectangle.widthProperty(), targetRectangle.heightProperty());
+    DragConfig dragConfig = DragSupport.bind(targetRectangle);
+    Rectangle2D screen = Screen.getPrimary().getBounds();
+    dragConfig.maxXProperty().bind(targetRectangle.widthProperty().subtract(screen.getWidth()).negate());
+    dragConfig.maxYProperty().bind(targetRectangle.heightProperty().subtract(screen.getHeight()).negate());
+    ResizeConfig resizeConfig = ResizeSupport.bind(targetRectangle);
+    resizeConfig.maxWidthProperty().set(screen.getWidth());
+    resizeConfig.maxHeightProperty().set(screen.getHeight());
 
+    targetRectangle.setOnMouseDragged(e -> updateMask());
     scene.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
       startPos[0] = e.getScreenX();
       startPos[1] = e.getScreenY();
@@ -129,8 +139,11 @@ public class ScreenShotStage extends Stage implements Logable {
     maskRectangle = new Rectangle();
     maskRectangle.setLayoutX(0);
     maskRectangle.setLayoutY(0);
-    maskRectangle.setWidth(Screen.getPrimary().getBounds().getWidth());
-    maskRectangle.setHeight(Screen.getPrimary().getBounds().getHeight());
+    Rectangle2D screenBound = Screen.getPrimary().getBounds();
+    double width = screenBound.getWidth();
+    double height = screenBound.getHeight();
+    maskRectangle.setWidth(width);
+    maskRectangle.setHeight(height);
     maskRectangle.setFill(new Color(0, 0, 0, 0.3));
 
     targetRectangle = new Rectangle();
@@ -140,7 +153,10 @@ public class ScreenShotStage extends Stage implements Logable {
     toolGroup = new HBox();
     toolGroup.visibleProperty().bind(targetRectangle.widthProperty().greaterThan(0));
     toolGroup.layoutXProperty().bind(targetRectangle.layoutXProperty());
-    toolGroup.layoutYProperty().bind(targetRectangle.layoutYProperty().add(targetRectangle.heightProperty()));
+    DoubleBinding base = targetRectangle.layoutYProperty().add(targetRectangle.heightProperty());
+    toolGroup.layoutYProperty().bind(Bindings.when(base.add(toolGroup.heightProperty()).greaterThan(height))
+        .then(base.subtract(toolGroup.heightProperty()))
+        .otherwise(base));
 
     rootGroup = new Group();
     scene = new Scene(rootGroup, 200, 200, Color.TRANSPARENT);
