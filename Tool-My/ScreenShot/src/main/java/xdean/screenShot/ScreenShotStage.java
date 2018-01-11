@@ -147,7 +147,7 @@ public class ScreenShotStage extends Stage implements Logable {
 
   }
 
-  private void autoSelect(MouseEvent e) {
+  void autoSelect(MouseEvent e) {
     if (userSelected.get() == false) {
       windowsBounds.stream()
           .filter(r -> r.contains(e.getScreenX(), e.getScreenY()))
@@ -156,18 +156,17 @@ public class ScreenShotStage extends Stage implements Logable {
     }
   }
 
-  private void canceled() {
+  void canceled() {
     userSelected.set(false);
     hide();
   }
 
-  private void confirmed() {
-    userSelected.set(false);
+  void confirmed() {
     ScreenShot.putIntoClipBoard(getScreenShot());
     canceled();
   }
 
-  private void reSelect(MouseEvent e) {
+  void reSelect(MouseEvent e) {
     targetRectangle.setX(0);
     targetRectangle.setY(0);
     targetRectangle.setWidth(0);

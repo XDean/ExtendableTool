@@ -88,10 +88,8 @@ public class ScreenShotToolBar {
           })
               .ifRight(e -> s.log().debug("write screenshot fail. Retry.", e))
               .unify(f -> If.that(f), e -> If.that(false))
-              .todo(() -> s.reshot())
-              .todo(() -> s.hide())
+              .todo(() -> s.confirmed())
               .ordo(() -> new Alert(AlertType.INFORMATION, "Save failed!", ButtonType.OK).showAndWait()));
-      s.toFront();
     });
   }
 
