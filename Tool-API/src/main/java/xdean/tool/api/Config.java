@@ -3,8 +3,13 @@ package xdean.tool.api;
 import static xdean.jex.util.log.LogUtil.log;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -13,6 +18,18 @@ public class Config {
   private static Path configFile;
 
   public static void locate(Path configPath, Path defaultConfig) {
+    URI uri = configPath.toUri();
+    try {
+      FileSystems.getFileSystem(uri);
+    } catch (FileSystemNotFoundException e1) {
+      Map<String, String> env = new HashMap<>();
+      env.put("create", "true");
+      try {
+        FileSystems.newFileSystem(uri, env);
+      } catch (IOException e) {
+        throw new Error(e);
+      }
+    }
     try {
       if (Files.notExists(configPath)) {
         if (Files.exists(defaultConfig)) {
