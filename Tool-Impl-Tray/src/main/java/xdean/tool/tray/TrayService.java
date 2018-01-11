@@ -52,7 +52,7 @@ public enum TrayService implements Logable {
   }
 
   private void initIcon() {
-    Path DEFAULT_ICON = uncatch(() -> Paths.get(getClass().getResource("/default_icon.png").toURI()));
+    Path DEFAULT_ICON = uncatch(() -> xdean.tool.api.Context.getPath(getClass().getResource("/default_icon.png").toURI()));
     Path path = Paths.get(Context.ICON_PATH);
     if (DEFAULT_ICON == null) {
       log().error("Default icon not found.");
