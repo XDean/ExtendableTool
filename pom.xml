@@ -19,7 +19,7 @@
 		<assembly.unpack>${rootdir}/${assembly.dir}/unpack-dependency.xml</assembly.unpack>
 		<assembly.file>${assembly.pack}</assembly.file>
 		<tool.assembly.path>${project.build.directory}</tool.assembly.path>
-    <tool.extension.path>${user.home}/.xdean/tool/extension</tool.extension.path>
+		<tool.extension.path>${user.home}/.xdean/tool/extension</tool.extension.path>
 	</properties>
 
 	<repositories>
@@ -59,7 +59,30 @@
 		<module>Tool-My</module>
 	</modules>
 
-
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-toolchains-plugin</artifactId>
+				<version>1.1</version>
+				<configuration>
+					<toolchains>
+						<jdk>
+							<version>1.8</version>
+							<vendor>oracle</vendor>
+						</jdk>
+					</toolchains>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>toolchain</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 	<profiles>
 		<profile>
