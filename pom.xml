@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<rootdir>${session.executionRootDirectory}/</rootdir>
+		<rootdir>${session.executionRootDirectory}</rootdir>
 		<resourceFolder>src/main/resources</resourceFolder>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
