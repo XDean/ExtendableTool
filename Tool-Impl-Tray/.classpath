@@ -11,6 +11,7 @@
 			<accessrule kind="accessible" pattern="javafx/**"/>
 			<accessrule kind="accessible" pattern="com/sun/javafx/**"/>
 			<accessrule kind="accessible" pattern="sun/awt/**"/>
+			<accessrule kind="accessible" pattern="**"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">

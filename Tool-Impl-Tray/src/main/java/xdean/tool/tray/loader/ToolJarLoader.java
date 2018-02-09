@@ -8,9 +8,10 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +33,19 @@ import xdean.tool.api.ToolUtil;
  *
  */
 public class ToolJarLoader implements IToolResourceLoader, Logable {
+  private static class InnerClassLoader extends URLClassLoader {
+    public InnerClassLoader(ClassLoader parent) {
+      super(new URL[] {}, parent);
+    }
+
+    @Override
+    public void addURL(URL url) {
+      super.addURL(url);
+    }
+  }
+
+  private InnerClassLoader libClassLoader = new InnerClassLoader(getClass().getClassLoader());
+  private Path tempLibFolder = Context.TEMP_PATH.resolve("classpath");
 
   @Override
   public List<ITool> getTools(Path path) {
@@ -43,11 +57,10 @@ public class ToolJarLoader implements IToolResourceLoader, Logable {
     return Collections.emptyList();
   }
 
-  private static class ToolJarUrl implements Logable{
-    private final URL sourceUrl;
-    private final Path sourcePath;
+  private class ToolJarUrl implements Logable {
     private final Path libPath;
     private final ArrayList<JarEntry> jarEntries;
+    private final URLClassLoader toolClassLoader;
 
     public ToolJarUrl(Path path) throws IOException {
       URL sourceUrl = path.toAbsolutePath().toUri().toURL();
@@ -55,22 +68,20 @@ public class ToolJarLoader implements IToolResourceLoader, Logable {
       try {
         connection = (JarURLConnection) sourceUrl.openConnection();
       } catch (Exception e) {
-        sourceUrl = new URL(String.format("jar:%s!/", sourceUrl));
-        connection = (JarURLConnection) sourceUrl.openConnection();
+        connection = (JarURLConnection) new URL(String.format("jar:%s!/", sourceUrl)).openConnection();
       }
-      this.sourcePath = path;
       this.libPath = getLibURL(path);
-      this.sourceUrl = sourceUrl;
       this.jarEntries = Collections.list(connection.getJarFile().entries());
+      this.toolClassLoader = URLClassLoader.newInstance(new URL[] { sourceUrl }, libClassLoader);
+      loadLibraries();
     }
 
     public List<ITool> getTools() throws IOException {
       List<ITool> toolList = new ArrayList<>();
-      URLClassLoader classLoader = getClassLoader();
       Observable.fromIterable(jarEntries)
           .map(JarEntry::getName)
           .filter(n -> n.endsWith(".class"))
-          .flatMap(name -> loadClass(name, classLoader))
+          .flatMap(name -> loadClass(name))
           .forEach(toolList::add);
       return toolList;
     }
@@ -92,45 +103,38 @@ public class ToolJarLoader implements IToolResourceLoader, Logable {
      * @return
      * @throws IOException
      */
-    private URLClassLoader getClassLoader() throws IOException {
-      List<URL> list = new ArrayList<>();
-      // itself
-      list.add(sourceUrl);
+    private void loadLibraries() throws IOException {
       // outer lib
       FileUtil.wideTraversal(libPath)
           .filter(p -> p.getFileName().toString().endsWith(".jar"))
           .map(p -> uncheck(() -> p.toUri().toURL()))
-          .forEach(list::add);
+          .forEach(libClassLoader::addURL);
       // inner lib
-      URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { sourceUrl });
-      Path tempLibFolder = Context.TEMP_PATH.resolve(sourcePath.getFileName().toString());
-      FileUtil.createDirectory(tempLibFolder);
+      Files.createDirectories(tempLibFolder);
 
       // copy jar files from jar file to temp folder
       jarEntries.stream()
           .map(JarEntry::getName)
           .filter(n -> n.endsWith(".jar"))
           .forEach(name -> uncheck(() -> {
-            InputStream input = classLoader.getResourceAsStream(name);
-            Path tempPath = tempLibFolder.resolve(name);
-            Files.createDirectories(tempPath.getParent());
-            Files.copy(input, tempPath, StandardCopyOption.REPLACE_EXISTING);
-            list.add(tempPath.toUri().toURL());
+            InputStream input = toolClassLoader.getResourceAsStream(name);
+            Path targetPath = tempLibFolder.resolve(Paths.get(name).getFileName());
+            URL targetURL = targetPath.toUri().toURL();
+            try {
+              Files.copy(input, targetPath);
+            } catch (FileAlreadyExistsException e) {
+            }
+            libClassLoader.addURL(targetURL);
           }));
-      classLoader.close();
-      log().debug("load {} with libirary: {}", sourcePath, list);
-      URL[] arr = new URL[list.size()];
-      URL[] urls = list.toArray(arr);
-      return URLClassLoader.newInstance(urls, getClass().getClassLoader());
     }
 
-    private Observable<ITool> loadClass(String clzName, ClassLoader classLoader) {
+    private Observable<ITool> loadClass(String clzName) {
       clzName = clzName.replace('/', '.');
       if (clzName.endsWith(".class")) {
         clzName = clzName.substring(0, clzName.length() - 6);
       }
       try {
-        Class<?> clz = classLoader.loadClass(clzName);
+        Class<?> clz = toolClassLoader.loadClass(clzName);
         return ToolUtil.loadTool(clz);
       } catch (Throwable e) {
         log().error("load class fail", clzName, e);
