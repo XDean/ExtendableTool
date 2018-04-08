@@ -11,7 +11,8 @@
 
 	<modules>
 		<module>ScreenShot</module>
-		<module>SystemTool</module>
+    <module>SystemTool</module>
+    <module>tool.my.other</module>
 	</modules>
 
 	<dependencyManagement>

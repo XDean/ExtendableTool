@@ -1,6 +1,6 @@
 package xdean.tool.other;
 
-import static xdean.jex.util.lang.ExceptionUtil.uncheck;
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 
 import java.awt.AWTException;
 import java.awt.Dimension;
@@ -16,12 +16,15 @@ import io.reactivex.schedulers.Schedulers;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import xdean.jex.util.log.Logable;
+import xdean.tool.api.Config;
 import xdean.tool.api.Tool;
 import xdean.tool.api.impl.AbstractToolItem;
 
 @Tool(parent = OtherTool.class)
-public class ScrrenProtection extends AbstractToolItem implements Runnable {
+public class ScrrenProtection extends AbstractToolItem implements Runnable, Logable {
 
+  private final String ENABLE_KEY = "ScrrenProtectionEnable";
   private final BooleanProperty enable = new SimpleBooleanProperty(this, "enable");
   private final Random RANDOM = new Random();
   private final Robot r;
@@ -36,7 +39,10 @@ public class ScrrenProtection extends AbstractToolItem implements Runnable {
       } else {
         d.dispose();
       }
+      Config.setProperty(ENABLE_KEY, n.toString());
+      log().debug((n ? "Enable" : "Disable") + "Screen Protection");
     });
+    enable.set(Config.getProperty(ENABLE_KEY).map(Boolean::valueOf).orElse(false));
   }
 
   @Override
@@ -53,7 +59,7 @@ public class ScrrenProtection extends AbstractToolItem implements Runnable {
     int oldY = 0;
     int dx = random();
     int dy = random();
-    while (true) {
+    while (!Thread.interrupted()) {
       Point location = MouseInfo.getPointerInfo().getLocation();
       int x = location.x;
       int y = location.y;
@@ -81,7 +87,7 @@ public class ScrrenProtection extends AbstractToolItem implements Runnable {
   }
 
   private void sleep(int mills) {
-    uncheck(() -> Thread.sleep(mills));
+    uncatch(() -> Thread.sleep(mills));
   }
 
   private int random() {
